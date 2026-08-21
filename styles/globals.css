@@ -1,0 +1,10 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Ensure the app uses Inter font */
+@layer base {
+  html {
+    font-family: 'Inter', sans-serif;
+  }
+}

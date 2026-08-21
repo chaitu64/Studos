@@ -1,0 +1,15 @@
+node_modules/
+.next/
+out/
+tsconfig.tsbuildinfo
+.playwright-mcp/
+.claude/
+.claude-flow/
+.env*
+!.env.example
+
+# Debug and local tool output
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
