@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { usePathname } from 'next/navigation';
 
 const NAV = [
+  { label: 'Home', href: '/' },
   { label: 'Opportunities', href: '/opportunities' },
   { label: 'Ideas', href: '/ideas' },
   { label: 'Career', href: '/career' },
@@ -31,7 +32,7 @@ export function Header() {
         </a>
 
         {/* Center: nav */}
-        <nav className="hidden md:flex items-center gap-6">
+        <nav className="hidden md:flex items-center gap-5 whitespace-nowrap">
           {NAV.map((item) => {
             const active = isActive(item.href);
             return (
@@ -41,8 +42,8 @@ export function Header() {
                 aria-current={active ? 'page' : undefined}
                 className={
                   active
-                    ? 'relative text-sm font-medium text-fg after:absolute after:-bottom-[21px] after:left-0 after:h-[2px] after:w-full after:bg-accent'
-                    : 'relative text-sm text-mut hover:text-fg transition-colors'
+                    ? 'relative shrink-0 text-sm font-medium text-fg after:absolute after:-bottom-[21px] after:left-0 after:h-[2px] after:w-full after:bg-accent'
+                    : 'relative shrink-0 text-sm text-mut transition-colors hover:text-fg'
                 }
               >
                 {item.label}

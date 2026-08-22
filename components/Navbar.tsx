@@ -11,6 +11,9 @@ export function Navbar() {
 
         {/* Desktop Nav Links with underline accent */}
         <div className="hidden md:flex items-center gap-8">
+          <a href="/" className="relative text-sm font-medium hover:text-indigo-600 transition-colors">
+            Home
+          </a>
           <a href="/opportunities" className="relative text-sm font-medium hover:text-indigo-600 transition-colors">
             Opportunities
           </a>
@@ -23,11 +26,11 @@ export function Navbar() {
           <a href="/roadmap" className="relative text-sm font-medium hover:text-indigo-600 transition-colors">
             Roadmap
           </a>
-          <a href="/campus" className="relative text-sm font-medium hover:text-indigo-600 transition-colors">
-            Campus
-          </a>
           <a href="/resources" className="relative text-sm font-medium hover:text-indigo-600 transition-colors">
             Resources
+          </a>
+          <a href="/campus" className="relative text-sm font-medium hover:text-indigo-600 transition-colors">
+            Campus
           </a>
         </div>
 
