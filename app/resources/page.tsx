@@ -55,7 +55,7 @@ export default function ResourcesPage() {
   }, [branch, year, semester]);
 
   return (
-    <div className="min-h-screen bg-white dark:bg-[#0a0a0a]">
+    <div className="min-h-screen bg-bg text-fg">
       <ResourceHeader />
       <AcademicSelector
         year={year} setYear={setYear}
@@ -63,20 +63,20 @@ export default function ResourcesPage() {
         semester={semester} setSemester={setSemester}
       />
 
-      <main className="container mx-auto max-w-7xl px-4 md:px-6 pb-24">
+      <main className="container-s pb-24">
         {loading ? (
-           <div className="py-12">
-               <div className="h-8 w-48 bg-gray-200 dark:bg-gray-800 rounded animate-pulse mb-6"></div>
+             <div className="py-12">
+               <div className="h-8 w-48 bg-surface-2 rounded animate-pulse mb-6"></div>
                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                    {[1, 2, 3, 4, 5, 6].map(i => (
-                       <div key={i} className="h-40 border border-gray-200 dark:border-gray-800 rounded-xl bg-gray-50 dark:bg-gray-900 animate-pulse"></div>
+                       <div key={i} className="h-40 border border-borderline rounded-xl bg-surface animate-pulse"></div>
                    ))}
                </div>
            </div>
         ) : error ? (
-           <div className="py-16 text-center border border-red-100 dark:border-red-900/30 rounded-xl bg-red-50 dark:bg-red-900/10 mt-8">
-               <p className="text-red-600 dark:text-red-400 font-medium mb-4">Couldn't load resources.</p>
-               <button onClick={() => setYear(year)} className="px-4 py-2 bg-red-100 dark:bg-red-900/50 text-red-700 dark:text-red-300 rounded-lg text-sm font-medium hover:bg-red-200 dark:hover:bg-red-900/70 transition-colors">
+             <div className="py-16 text-center border border-error/30 rounded-xl bg-error/5 mt-8">
+               <p className="text-error font-medium mb-4">Couldn't load resources.</p>
+               <button onClick={() => setYear(year)} className="px-4 py-2 bg-error/10 text-error rounded-lg text-sm font-medium hover:bg-error/20 transition-colors">
                    Try again
                </button>
            </div>
@@ -87,10 +87,10 @@ export default function ResourcesPage() {
           </>
         )}
 
-        <div className="mt-12 py-8 border-t border-gray-200 dark:border-gray-800 text-center">
-             <p className="text-gray-500 dark:text-gray-400 text-sm mb-3">Have useful study material?</p>
-             <button className="text-indigo-600 dark:text-indigo-400 font-medium text-sm hover:underline">
-                 Submit a resource →
+        <div className="mt-12 py-8 border-t border-borderline text-center">
+           <p className="text-mut text-sm mb-3">Have useful study material?</p>
+           <button className="text-accent font-medium text-sm hover:underline">
+             Submit a resource
              </button>
         </div>
       </main>

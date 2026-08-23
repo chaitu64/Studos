@@ -18,17 +18,17 @@ export default async function RoadmapPage() {
   const resume = await RoadmapService.getResume();
 
   return (
-    <div className="min-h-screen bg-white dark:bg-[#0a0a0a]">
+    <div className="min-h-screen bg-bg text-fg">
       <RoadmapHeader />
       <StudentStage roadmap={roadmap} />
 
-      <main className="container mx-auto max-w-7xl px-4 md:px-6 pb-24">
+      <main className="container-s pb-24">
         <JourneyTimeline stages={roadmap.stages} />
 
-        <div className="py-12 border-t border-gray-200 dark:border-gray-800">
+        <div className="py-12 border-t border-borderline">
           <div className="mb-8">
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white uppercase tracking-tight">What you should do this year</h2>
-            <p className="text-gray-600 dark:text-gray-400 mt-2">Your actionable checklist for {roadmap.studentContext.year}.</p>
+            <h2 className="text-2xl font-semibold tracking-tight">What you should do this year</h2>
+            <p className="text-mut mt-2">Your actionable checklist for {roadmap.studentContext.year}.</p>
           </div>
 
           <SkillGroup skills={skills} />
@@ -39,13 +39,13 @@ export default async function RoadmapPage() {
 
         <YearlyRoadmap plans={roadmap.fourYearPlan} />
 
-        <div className="py-16 mt-8 border-t border-gray-200 dark:border-gray-800 text-center">
-          <h2 className="text-3xl font-extrabold text-gray-900 dark:text-white mb-4">Make this roadmap yours.</h2>
-          <p className="text-lg text-gray-600 dark:text-gray-400 mb-8 max-w-2xl mx-auto">
+        <div className="py-16 mt-8 border-t border-borderline text-center">
+          <h2 className="text-3xl font-semibold tracking-tight mb-4">Make this roadmap yours.</h2>
+          <p className="text-lg text-mut mb-8 max-w-2xl mx-auto">
             Tell StudOS your branch, year and career goal to get a roadmap built around you.
           </p>
-          <button className="inline-flex items-center justify-center px-8 py-4 border border-transparent text-base font-bold rounded-lg shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 transition-colors">
-            Customize my roadmap →
+          <button className="btn-primary inline-flex items-center justify-center px-8 py-4">
+            Customize my roadmap
           </button>
         </div>
       </main>
