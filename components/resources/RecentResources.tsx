@@ -1,6 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { Resource } from '@/types/resource';
+import { FileText, Link2, ArrowRight, Clock, Sparkles, Download, Eye } from 'lucide-react';
 
 interface RecentResourcesProps {
   resources: Resource[];
@@ -9,42 +10,90 @@ interface RecentResourcesProps {
 export function RecentResources({ resources }: RecentResourcesProps) {
   if (!resources || resources.length === 0) return null;
 
+  const getTypeBadgeStyle = (type: string) => {
+    switch (type) {
+      case 'Notes':
+        return 'bg-purple-500/15 text-purple-300 border-purple-500/30';
+      case 'Previous Papers':
+        return 'bg-cyan-500/15 text-cyan-300 border-cyan-500/30';
+      case 'Practical/Viva':
+      case 'Lab Manuals':
+        return 'bg-pink-500/15 text-pink-300 border-pink-500/30';
+      case 'Important Questions':
+        return 'bg-amber-500/15 text-amber-300 border-amber-500/30';
+      default:
+        return 'bg-slate-500/15 text-slate-300 border-slate-500/30';
+    }
+  };
+
   return (
-    <div className="py-8 border-t border-gray-200 dark:border-gray-800">
-       <div className="mb-6 flex justify-between items-end">
-        <h2 className="text-xl font-bold text-gray-900 dark:text-white">Recently added</h2>
-        <span className="text-sm text-gray-500 dark:text-gray-400">Across all subjects</span>
+    <div className="py-8 border-t border-white/10">
+      <div className="mb-5 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+        <div className="flex items-center gap-2.5">
+          <div className="w-8 h-8 rounded-lg bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 flex items-center justify-center">
+            <Sparkles size={16} />
+          </div>
+          <div>
+            <h2 className="text-lg sm:text-xl font-black text-white tracking-tight">
+              Recently Uploaded & Verified
+            </h2>
+            <p className="text-xs text-slate-400">
+              Fresh notes, PYQ solutions, and lab manuals submitted by top students
+            </p>
+          </div>
+        </div>
       </div>
 
-      <div className="flex flex-col gap-3">
-        {resources.map(resource => (
-          <Link key={resource.id} href={`/resources/${resource.subjectId}`} className="group block">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between p-4 border border-gray-100 dark:border-gray-800/60 rounded-lg bg-gray-50/50 dark:bg-gray-900/30 hover:bg-white dark:hover:bg-gray-900 hover:border-indigo-200 dark:hover:border-indigo-800/50 transition-colors">
-              <div className="flex items-center gap-4 mb-2 sm:mb-0">
-                <div className="w-10 h-10 rounded-lg bg-gray-100 dark:bg-gray-800 flex items-center justify-center flex-shrink-0 text-gray-500">
-                  {resource.format === 'PDF' ? (
-                     <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
-                     </svg>
-                  ) : (
-                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
-                    </svg>
+      <div className="rounded-2xl border border-white/10 bg-[#0d1127]/70 backdrop-blur-xl overflow-hidden divide-y divide-white/5 shadow-xl">
+        {resources.map((resource) => (
+          <Link
+            key={resource.id}
+            href={`/resources/${resource.subjectId}`}
+            className="flex flex-col sm:flex-row sm:items-center justify-between p-4 sm:p-5 hover:bg-white/[0.04] transition-all group gap-3.5"
+          >
+            <div className="flex items-start sm:items-center gap-3.5">
+              <div className="w-10 h-10 rounded-xl bg-purple-500/10 text-purple-300 border border-purple-500/20 flex items-center justify-center shrink-0 group-hover:scale-105 group-hover:border-purple-500/40 transition-all">
+                {resource.format === 'PDF' ? <FileText size={18} /> : <Link2 size={18} />}
+              </div>
+              <div>
+                <h4 className="font-bold text-sm text-white group-hover:text-purple-300 transition-colors line-clamp-1">
+                  {resource.title}
+                </h4>
+                <div className="flex flex-wrap items-center gap-2 mt-1 text-xs text-slate-400">
+                  <span className={`px-2 py-0.5 rounded-md text-[10px] font-bold border ${getTypeBadgeStyle(resource.type)}`}>
+                    {resource.type}
+                  </span>
+                  <span>•</span>
+                  <span className="text-slate-300 font-medium">
+                    {resource.branch}
+                  </span>
+                  <span>•</span>
+                  <span>{resource.year}</span>
+                  {resource.views && (
+                    <>
+                      <span>•</span>
+                      <span className="flex items-center gap-1 text-[11px] text-slate-400">
+                        <Eye size={11} className="text-slate-500" /> {resource.views} views
+                      </span>
+                    </>
                   )}
                 </div>
-                <div>
-                  <h4 className="text-sm font-medium text-gray-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors line-clamp-1">{resource.title}</h4>
-                  <div className="flex flex-wrap items-center text-xs text-gray-500 dark:text-gray-400 mt-1 gap-2">
-                    <span className="bg-gray-200 dark:bg-gray-800 px-1.5 py-0.5 rounded text-gray-700 dark:text-gray-300">{resource.type}</span>
-                    <span>•</span>
-                    <span>{resource.branch} {resource.year}</span>
-                  </div>
-                </div>
               </div>
-              <div className="flex items-center justify-between sm:justify-end gap-4 text-xs text-gray-500 dark:text-gray-400 pl-14 sm:pl-0">
-                 <span>Updated {new Date(resource.updatedAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}</span>
-                 <span className="font-medium text-indigo-600 dark:text-indigo-400 group-hover:underline">View</span>
-              </div>
+            </div>
+
+            <div className="flex items-center justify-between sm:justify-end gap-4 text-xs shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-white/5">
+              <span className="text-xs text-slate-400 flex items-center gap-1">
+                <Clock size={12} className="text-slate-500" />
+                {new Date(resource.updatedAt).toLocaleDateString('en-IN', {
+                  month: 'short',
+                  day: 'numeric'
+                })}
+              </span>
+
+              <span className="inline-flex items-center gap-1.5 text-xs font-bold text-purple-400 group-hover:text-purple-300 bg-purple-500/10 px-3 py-1.5 rounded-lg border border-purple-500/20 group-hover:border-purple-500/40 transition-all">
+                <span>View File</span>
+                <ArrowRight size={13} className="group-hover:translate-x-1 transition-transform" />
+              </span>
             </div>
           </Link>
         ))}

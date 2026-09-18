@@ -1,107 +1,200 @@
-'use client';
+"use client";
 
-import { Search, Menu, X } from 'lucide-react';
-import { useState } from 'react';
+import React, { useState } from 'react';
+import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-
-const NAV = [
-  { label: 'Home', href: '/' },
-  { label: 'Opportunities', href: '/opportunities' },
-  { label: 'Ideas', href: '/ideas' },
-  { label: 'Career', href: '/career' },
-  { label: 'Roadmap', href: '/roadmap' },
-  { label: 'Resources', href: '/resources' },
-];
+import {
+  Menu,
+  X,
+  ArrowRight,
+  Sun,
+  Moon,
+} from 'lucide-react';
+import { BrandLogo } from './BrandLogo';
+import { useTheme } from './ThemeProvider';
 
 export function Header() {
-  const [open, setOpen] = useState(false);
   const pathname = usePathname();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { isDark, toggleTheme } = useTheme();
 
-  const isActive = (href: string) =>
-    pathname === href || pathname.startsWith(href + '/');
+  const navLinks = [
+    { name: 'Home', href: '/' },
+    { name: 'Opportunities', href: '/opportunities' },
+    { name: 'Idea Hub', href: '/ideas' },
+    { name: 'Career Paths', href: '/career' },
+    { name: 'Roadmap', href: '/roadmap' },
+    { name: 'Resources', href: '/resources' },
+    { name: 'Classrooms', href: '/classrooms' },
+  ];
 
   return (
-    <header className="sticky top-0 z-40 border-b border-borderline bg-bg/90 backdrop-blur w-full">
-      <div className="container-s flex h-16 items-center justify-between gap-4">
-        {/* Left: brand */}
-        <a href="/" className="flex items-center gap-2 shrink-0">
-          <span className="h-6 w-6 rounded-md bg-accent flex items-center justify-center text-white text-sm font-bold">
-            S
-          </span>
-          <span className="text-lg font-semibold tracking-tight">StudOS</span>
-        </a>
+    <header className="sticky top-3.5 z-50 px-4 sm:px-6 md:px-8 pointer-events-none transition-all duration-300">
+      <div className="max-w-7xl mx-auto flex items-center justify-between gap-3">
 
-        {/* Center: nav */}
-        <nav className="hidden md:flex items-center gap-5 whitespace-nowrap">
-          {NAV.map((item) => {
-            const active = isActive(item.href);
+        {/* ── 1. SEPARATED LOGO POD ── */}
+        <div className="pointer-events-auto shrink-0">
+          <Link
+            href="/"
+            aria-label="StudOS Home"
+            className="group flex items-center gap-3 px-4 py-2.5 rounded-2xl backdrop-blur-xl border shadow-xl shadow-black/20 transition-all duration-200"
+            style={{
+              background: 'var(--bg-nav)',
+              borderColor: 'var(--border-nav)',
+            }}
+          >
+            <BrandLogo size="sm" />
+          </Link>
+        </div>
+
+        {/* ── 2. FLOATING NAVIGATION ISLAND ── */}
+        <nav
+          aria-label="Main Navigation"
+          className="hidden lg:flex pointer-events-auto items-center gap-1 px-2.5 py-1.5 rounded-full backdrop-blur-xl border shadow-xl shadow-black/20"
+          style={{
+            background: 'var(--bg-nav)',
+            borderColor: 'var(--border-nav)',
+          }}
+        >
+          {navLinks.map((link) => {
+            const isActive = pathname === link.href;
             return (
-              <a
-                key={item.href}
-                href={item.href}
-                aria-current={active ? 'page' : undefined}
-                className={
-                  active
-                    ? 'relative shrink-0 text-sm font-medium text-fg after:absolute after:-bottom-[21px] after:left-0 after:h-[2px] after:w-full after:bg-accent'
-                    : 'relative shrink-0 text-sm text-mut transition-colors hover:text-fg'
-                }
+              <Link
+                key={link.href}
+                href={link.href}
+                className="relative px-4 py-1.5 rounded-full text-xs font-medium tracking-wide transition-colors"
+                style={{
+                  color: isActive ? 'var(--fg-nav-active)' : 'var(--fg-nav)',
+                  background: isActive ? 'var(--surface-glass)' : 'transparent',
+                  border: isActive ? '1px solid var(--border-glass)' : '1px solid transparent',
+                  fontWeight: isActive ? 600 : 500,
+                }}
               >
-                {item.label}
-              </a>
+                <span>{link.name}</span>
+              </Link>
             );
           })}
         </nav>
 
-        {/* Right: search + login */}
-        <div className="flex items-center gap-3 shrink-0">
-          <a
-            href="/opportunities"
-            aria-label="Search"
-            className="p-2 text-mut hover:text-fg transition-colors"
-          >
-            <Search className="h-4.5 w-4.5" size={18} />
-          </a>
-          <a
-            href="#"
-            className="hidden sm:inline-flex btn-subtle text-sm"
-            onClick={(e) => e.preventDefault()}
-          >
-            Login
-          </a>
-          {/* Mobile menu toggle */}
+        {/* ── 3. ACTION POD (Right) ── */}
+        <div
+          className="hidden sm:flex pointer-events-auto items-center gap-2.5 px-3 py-1.5 rounded-2xl backdrop-blur-xl border shadow-xl shadow-black/20 shrink-0"
+          style={{
+            background: 'var(--bg-nav)',
+            borderColor: 'var(--border-nav)',
+          }}
+        >
+          {/* Theme Toggle */}
           <button
-            className="md:hidden p-2 text-mut hover:text-fg"
-            aria-label="Toggle menu"
-            onClick={() => setOpen(!open)}
+            onClick={toggleTheme}
+            aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+            className="w-8 h-8 rounded-xl flex items-center justify-center transition-all duration-200 hover:scale-110"
+            style={{
+              background: 'var(--surface-glass)',
+              border: '1px solid var(--border-glass)',
+              color: 'var(--fg-nav)',
+            }}
           >
-            {open ? <X size={20} /> : <Menu size={20} />}
+            {isDark ? <Sun size={14} /> : <Moon size={14} />}
+          </button>
+
+          <Link
+            href="/career"
+            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#E11D48] hover:bg-[#BE123C] text-white text-xs font-semibold shadow-sm transition-colors"
+          >
+            <span>Launch Track</span>
+            <ArrowRight size={13} />
+          </Link>
+          <div
+            className="w-8 h-8 rounded-xl flex items-center justify-center text-xs font-bold"
+            style={{
+              background: 'var(--surface-glass)',
+              border: '1px solid var(--border-glass)',
+              color: 'var(--fg-muted)',
+            }}
+          >
+            SN
+          </div>
+        </div>
+
+        {/* ── 4. MOBILE TRIGGER ── */}
+        <div className="lg:hidden pointer-events-auto flex items-center gap-2">
+          {/* Mobile Theme Toggle */}
+          <button
+            onClick={toggleTheme}
+            aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+            className="p-2.5 rounded-2xl backdrop-blur-xl border transition-colors"
+            style={{
+              background: 'var(--bg-nav)',
+              borderColor: 'var(--border-nav)',
+              color: 'var(--fg-muted)',
+            }}
+          >
+            {isDark ? <Sun size={18} /> : <Moon size={18} />}
+          </button>
+          <button
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="p-2.5 rounded-2xl backdrop-blur-xl border transition-colors"
+            style={{
+              background: 'var(--bg-nav)',
+              borderColor: 'var(--border-nav)',
+              color: 'var(--fg)',
+            }}
+            aria-label="Toggle menu"
+          >
+            {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
           </button>
         </div>
+
       </div>
 
-      {/* Mobile drawer */}
-      {open && (
-        <nav className="md:hidden border-t border-borderline bg-bg">
-          <div className="container-s py-2">
-            {NAV.map((item) => {
-              const active = isActive(item.href);
+      {/* ── 5. MOBILE DRAWER ── */}
+      {mobileMenuOpen && (
+        <div
+          className="lg:hidden pointer-events-auto max-w-md mx-auto mt-3 rounded-2xl border p-4 shadow-2xl shadow-black/40 animate-scale-in backdrop-blur-2xl"
+          style={{
+            background: 'var(--bg-nav)',
+            borderColor: 'var(--border-nav)',
+          }}
+        >
+          <nav className="flex flex-col gap-1">
+            {navLinks.map((link) => {
+              const isActive = pathname === link.href;
               return (
-                <a
-                  key={item.href}
-                  href={item.href}
-                  aria-current={active ? 'page' : undefined}
-                  className={`block py-2.5 text-sm transition-colors ${
-                    active ? 'text-accent font-medium' : 'text-fg hover:text-accent'
-                  }`}
-                  onClick={() => setOpen(false)}
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-medium transition-colors"
+                  style={{
+                    background: isActive ? 'var(--surface-glass)' : 'transparent',
+                    color: isActive ? 'var(--fg-nav-active)' : 'var(--fg-nav)',
+                    border: isActive ? '1px solid var(--border-glass)' : '1px solid transparent',
+                    fontWeight: isActive ? 600 : 500,
+                  }}
                 >
-                  {item.label}
-                </a>
+                  <span>{link.name}</span>
+                </Link>
               );
             })}
-          </div>
-        </nav>
+            <div
+              className="pt-3 border-t mt-2"
+              style={{ borderColor: 'var(--border-glass)' }}
+            >
+              <Link
+                href="/career"
+                onClick={() => setMobileMenuOpen(false)}
+                className="w-full flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-[#E11D48] hover:bg-[#BE123C] text-white text-xs font-semibold shadow-sm transition-colors"
+              >
+                <span>Launch Track</span>
+                <ArrowRight size={13} />
+              </Link>
+            </div>
+          </nav>
+        </div>
       )}
     </header>
   );
 }
+
+export default Header;

@@ -1,600 +1,511 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import React, { useState } from 'react';
+import Link from 'next/link';
 import {
+  Briefcase,
+  Lightbulb,
+  GraduationCap,
+  BookOpen,
   ArrowRight,
   Search,
-  Compass,
-  Lightbulb,
-  Users,
-  Rocket,
-  BookOpen,
   Calendar,
-  Timer,
-  Brain,
-  Code2,
-  Box,
-  Trophy,
-  Briefcase,
-  GraduationCap,
+  Clock,
+  Users,
+  Sparkles,
+  Zap,
+  Globe,
+  Award,
+  CheckCircle2
 } from 'lucide-react';
-import {
-  opportunities,
-  categories,
-  heroFeed,
-  hotEvents,
-  deadlines,
-  featuredProject,
-  secondaryProjects,
-  activeIdeas,
-  years,
-  personalization,
-  STATUS_STYLES,
-  type DeadlineStatus,
-} from '../data/home';
+import { ProjectShowcase } from '../components/home/project-showcase';
+import { BackToTop } from '../components/ui/back-to-top';
+import { BrandLogo } from '../components/BrandLogo';
 
-function SectionHeader({
-  title,
-  subtitle,
-  href,
-  linkLabel,
-}: {
-  title: string;
-  subtitle?: string;
-  href?: string;
-  linkLabel?: string;
-}) {
+export default function HomePage() {
+  const [searchQuery, setSearchQuery] = useState('');
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = (e.clientX - rect.left) / rect.width - 0.5;
+    const y = (e.clientY - rect.top) / rect.height - 0.5;
+    setMousePos({ x, y });
+  };
+
+  const handleMouseLeave = () => {
+    setMousePos({ x: 0, y: 0 });
+  };
+
+  const stats = [
+    { number: '940+', label: 'Active Students' },
+    { number: '1500+', label: 'Verified Resources' },
+    { number: '150+', label: 'Live Opportunities' },
+    { number: '20+', label: 'Engineering Tracks' },
+  ];
+
+  const processSteps = [
+    {
+      num: '1',
+      title: 'Choose a Track',
+      desc: 'Explore tailored roadmaps and curriculum benchmarks calibrated for your college branch and target role.',
+      color: 'from-pink-500 via-rose-600 to-red-600',
+      glow: 'shadow-pink-500/40',
+      dustColor: 'bg-rose-500/30',
+      href: '/career'
+    },
+    {
+      num: '2',
+      title: 'Connect & Build',
+      desc: 'Pitch visionary ideas, recruit complementary student developers, and enter top global hackathons.',
+      color: 'from-purple-500 via-indigo-600 to-violet-800',
+      glow: 'shadow-purple-500/40',
+      dustColor: 'bg-purple-500/30',
+      href: '/ideas'
+    },
+    {
+      num: '3',
+      title: 'Master & Launch',
+      desc: 'Access past question papers, verified handwritten notes, and apply to vetted student internships.',
+      color: 'from-amber-400 via-amber-500 to-orange-600',
+      glow: 'shadow-amber-500/40',
+      dustColor: 'bg-amber-500/30',
+      href: '/opportunities'
+    }
+  ];
+
+  const milestones = [
+    {
+      year: 'Year 1',
+      title: 'The Beginning',
+      desc: 'Master computational thinking, Linux environment, Git version control, and data structure fundamentals.',
+      location: 'Foundations · Campus'
+    },
+    {
+      year: 'Year 2',
+      title: 'Early Exploration',
+      desc: 'Form hackathon squads, dive into AI/ML or Fullstack domains, and begin contributing to open-source.',
+      location: 'Hackathons · Labs'
+    },
+    {
+      year: 'Year 3',
+      title: 'Hard Work & Polish',
+      desc: 'Architect end-to-end production systems, publish research, and secure verified summer internships.',
+      location: 'Internships & Grants'
+    },
+    {
+      year: 'Year 4',
+      title: 'Industry Launch',
+      desc: 'Complete capstone innovation, ace technical architecture interviews, and step into high-impact roles.',
+      location: 'Global Placement'
+    }
+  ];
+
+  const recentOpportunities = [
+    {
+      id: 'opp-1',
+      title: 'Global AI Agentic Hackathon 2026',
+      organization: 'Google DeepMind',
+      type: 'Hackathon',
+      deadline: '4 days left',
+      mode: 'Online / Global',
+      reward: '$50,000 Pool',
+      skills: ['AI / LLMs', 'Python', 'Open Source']
+    },
+    {
+      id: 'opp-2',
+      title: 'Summer 2026 Software Engineer Internship',
+      organization: 'Microsoft Cloud & AI',
+      type: 'Internship',
+      deadline: 'Sep 30, 2026',
+      mode: 'Hybrid (Bangalore / Hyderabad)',
+      reward: 'Stipend + Pre-Placement',
+      skills: ['C++', 'Go', 'Cloud Architecture']
+    },
+    {
+      id: 'opp-3',
+      title: 'Autonomous Robotics Innovation Fellowship',
+      organization: 'MIT Innovation Lab',
+      type: 'Fellowship',
+      deadline: 'Oct 15, 2026',
+      mode: 'Research Grant',
+      reward: 'Full Grant + Mentorship',
+      skills: ['ROS 2', 'Embedded C', 'Hardware']
+    }
+  ];
+
   return (
-    <div className="mb-6 flex items-end justify-between gap-4">
-      <div>
-        <h2 className="text-2xl font-semibold tracking-tight md:text-3xl">{title}</h2>
-        {subtitle && <p className="mt-1 text-sm text-mut">{subtitle}</p>}
-      </div>
-      {href && linkLabel && (
-        <a
-          href={href}
-          className="shrink-0 flex items-center gap-1.5 text-sm text-accent transition-colors hover:text-accent-strong"
-        >
-          {linkLabel} <ArrowRight size={15} />
-        </a>
-      )}
-    </div>
-  );
-}
+    <div className="text-white min-h-screen relative overflow-hidden bg-transparent">
 
-function Hero() {
-  const router = useRouter();
-  const [q, setQ] = useState('');
+      {/* Background Ambient Depth */}
+      <div className="absolute top-20 left-1/4 w-[500px] h-[400px] bg-red-600/5 rounded-full blur-[140px] pointer-events-none" />
+      <div className="absolute top-1/3 right-1/4 w-[500px] h-[400px] bg-blue-600/5 rounded-full blur-[140px] pointer-events-none" />
 
-  return (
-    <section className="relative py-16 md:py-20 lg:py-24 overflow-hidden bg-gradient-to-b from-surface via-surface/90 to-surface/95">
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="h-full w-full opacity-20 -rotate-6 origin-top-left" />
-        <div className="h-full w-full opacity-10 -rotate-6 origin-bottom-right" />
-      </div>
-      <div className="container-s relative">
-        <div className="grid items-center gap-8 lg:grid-cols-[1.1fr_0.9fr] max-w-2xl">
-          <div>
-            <p className="eyebrow mb-3 tracking-wider text-indigo-400">Student operating system</p>
-            <h1 className="max-w-xl text-5xl font-semibold leading-[1.1] tracking-tight md:text-6xl lg:text-[3.5rem] text-indigo-900">
-              Discover. Connect. Build.
+      {/* =========================================================================
+      {/* =========================================================================
+          SECTION 1: HERO (Spider-Man Futuristic Centerpiece & Active Background)
+          ========================================================================= */}
+      <section
+        onMouseMove={handleMouseMove}
+        onMouseLeave={handleMouseLeave}
+        className="relative pt-12 pb-20 md:pt-16 md:pb-28 flex flex-col items-center justify-center text-center px-4 overflow-hidden"
+      >
+
+        {/* Visual Composition Centerpiece with Matte 3D Spheres, Multi-Axis Orbital Rings & HUD Reticles */}
+        <div className="relative w-full max-w-4xl mx-auto flex items-center justify-center min-h-[340px] sm:min-h-[420px] md:min-h-[480px]">
+
+          {/* Tri-Axis Animated Spider-Tech Orbital Rings */}
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+            {/* Outer Spider Crimson Orbital Ring */}
+            <div className="w-[320px] sm:w-[480px] md:w-[600px] h-[320px] sm:h-[480px] md:h-[600px] rounded-full border border-red-500/25 border-dashed animate-spin-slow relative">
+              <div className="absolute -top-1.5 left-1/2 -translate-x-1/2 w-3 h-3 rounded-full bg-red-500 shadow-md shadow-red-500/50" />
+            </div>
+            {/* Mid Web Cobalt Orbital Ring */}
+            <div className="absolute w-[240px] sm:w-[360px] md:w-[460px] h-[240px] sm:h-[360px] md:h-[460px] rounded-full border border-blue-500/25 border-dotted animate-spin-reverse">
+              <div className="absolute top-1/2 -right-1.5 -translate-y-1/2 w-2.5 h-2.5 rounded-full bg-blue-500 shadow-md shadow-blue-500/50" />
+            </div>
+            {/* Inner Equatorial Web Ring */}
+            <div className="absolute w-[180px] sm:w-[280px] md:w-[360px] h-[180px] sm:h-[280px] md:h-[360px] rounded-full border border-white/15 animate-spin-slow" style={{ animationDuration: '35s' }}>
+              <div className="absolute bottom-2 left-1/4 w-2 h-2 rounded-full bg-slate-300" />
+            </div>
+          </div>
+
+          {/* Tactical Spider HUD Corner Reticles Framing the Core */}
+          <div className="absolute w-[280px] sm:w-[440px] md:w-[560px] h-[240px] sm:h-[320px] md:h-[380px] pointer-events-none border border-white/5 rounded-3xl">
+            {/* Corner Brackets */}
+            <div className="absolute top-0 left-0 w-4 h-4 border-t-2 border-l-2 border-red-500/50 rounded-tl" />
+            <div className="absolute top-0 right-0 w-4 h-4 border-t-2 border-r-2 border-blue-500/50 rounded-tr" />
+            <div className="absolute bottom-0 left-0 w-4 h-4 border-b-2 border-l-2 border-blue-500/50 rounded-bl" />
+            <div className="absolute bottom-0 right-0 w-4 h-4 border-b-2 border-r-2 border-red-500/50 rounded-br" />
+
+            {/* Tactical Micro Telemetry Tags */}
+            <span className="absolute -top-3 left-6 px-2 py-0.5 rounded text-[9px] font-mono text-slate-400 bg-[#0B0F1A] border border-white/10">
+              SYS::SPIDER_v3.2
+            </span>
+            <span className="absolute -bottom-3 right-6 px-2 py-0.5 rounded text-[9px] font-mono text-blue-400 bg-[#0B0F1A] border border-white/10">
+              HUD // ONLINE
+            </span>
+          </div>
+
+          {/* 3D Primary Left Sphere (Matte Spider Crimson) */}
+          <div
+            style={{
+              transform: `translate(${mousePos.x * -18}px, ${mousePos.y * -18}px)`,
+              transition: 'transform 0.2s cubic-bezier(0.22, 1, 0.36, 1)'
+            }}
+            className="absolute left-[8%] sm:left-[16%] md:left-[20%] top-1/2 -translate-y-1/2 w-36 sm:w-52 md:w-64 h-36 sm:h-52 md:h-64 rounded-full bg-gradient-to-tr from-red-950 via-rose-700 to-red-600 shadow-2xl shadow-black/90 z-10 animate-float pointer-events-none"
+          >
+            {/* Specular Highlight */}
+            <div className="absolute top-4 left-6 w-12 sm:w-16 h-8 sm:h-12 rounded-full bg-white/20 blur-sm transform -rotate-45" />
+          </div>
+
+          {/* 3D Secondary Right Sphere (Matte Web Cobalt) */}
+          <div
+            style={{
+              transform: `translate(${mousePos.x * 18}px, ${mousePos.y * 18}px)`,
+              transition: 'transform 0.2s cubic-bezier(0.22, 1, 0.36, 1)',
+              animationDelay: '1.5s'
+            }}
+            className="absolute right-[8%] sm:right-[16%] md:right-[20%] bottom-6 sm:bottom-10 w-24 sm:w-36 md:w-48 h-24 sm:h-36 md:h-48 rounded-full bg-gradient-to-tr from-slate-950 via-blue-900 to-blue-600 shadow-2xl shadow-black/90 z-10 animate-float pointer-events-none"
+          >
+            <div className="absolute top-2 left-4 w-8 sm:w-12 h-5 sm:h-8 rounded-full bg-white/20 blur-sm transform -rotate-45" />
+          </div>
+
+          {/* Giant Impact Typography ("STUD / OS") - Clean, High-Contrast, Non-Neon */}
+          <div
+            style={{
+              transform: `perspective(1000px) rotateX(${mousePos.y * -6}deg) rotateY(${mousePos.x * 6}deg)`,
+              transition: 'transform 0.2s cubic-bezier(0.22, 1, 0.36, 1)'
+            }}
+            className="relative z-30 flex flex-col items-center justify-center select-none pointer-events-none"
+          >
+            {/* STUD - Pure Platinum White */}
+            <h1 className="text-6xl sm:text-8xl md:text-9xl lg:text-[10rem] font-black tracking-tighter leading-none text-white drop-shadow-[0_15px_30px_rgba(0,0,0,0.9)]">
+              STUD
             </h1>
-            <p className="mt-4 max-w-lg text-lg leading-relaxed text-indigo-400 md:text-xl">
-              Find opportunities, meet the right people, and turn your ideas into projects that matter.
-            </p>
-
-            <form
-              className="mt-6 flex items-center gap-2 max-w-md"
-              onSubmit={(e) => {
-                e.preventDefault();
-                router.push(`/opportunities?q=${encodeURIComponent(q)}`);
-              }}
-            >
-              <div className="relative flex-1">
-                <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-indigo-400" />
-                <input
-                  value={q}
-                  onChange={(e) => setQ(e.target.value)}
-                  placeholder="Search opportunities, skills, projects..."
-                  className="input-search w-full py-3 px-4 rounded-lg border border-borderline bg-surface/50 text-indigo-400 placeholder-indigo-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                />
-              </div>
-              <button type="submit" className="btn-primary py-3 px-6 rounded-lg hover:bg-indigo-600 hover:text-white transition-colors">
-                <Search size={16} className="md:hidden" />
-                <span className="hidden md:inline">Search</span>
-              </button>
-            </form>
-
-            <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1.5">
-              <span className="text-xs font-medium text-indigo-400 uppercase tracking-wider">Popular:</span>
-              {['Hackathons', 'Internships', 'AI/ML', 'Web Development', 'Robotics'].map((tag) => (
-                <a key={tag} href={`/opportunities?q=${encodeURIComponent(tag)}`} className="text-indigo-400 hover:text-indigo-300 transition-colors px-2 py-1 rounded bg-indigo-500/5 text-xs font-medium">
-                  {tag}
-                </a>
-              ))}
-            </div>
-
-            <div className="mt-4 flex gap-3">
-              <a href="/opportunities" className="btn-primary">
-                Explore Opportunities
-              </a>
-              <a href="/ideas/submit" className="btn-subtle">
-                Submit an Idea
-              </a>
-            </div>
+            {/* OS - Matte Spider Crimson to Web Cobalt */}
+            <h1 className="text-6xl sm:text-8xl md:text-9xl lg:text-[10rem] font-black tracking-tighter leading-none text-transparent bg-clip-text bg-gradient-to-r from-red-500 via-rose-500 to-blue-500 drop-shadow-[0_15px_30px_rgba(0,0,0,0.9)]">
+              OS
+            </h1>
           </div>
 
-          <div className="surface p-4 rounded-lg animate-fade-up">
-            <p className="eyebrow mb-3 flex items-center gap-2">
-              <span className="h-1.5 w-1.5 rounded-full bg-indigo-600 animate-pulse" />
-              For you
-              <span className="ml-auto text-[10px] uppercase tracking-normal text-indigo-400">Live feed</span>
-            </p>
-            <div className="space-y-3">
-              {heroFeed.map((item, i) => (
-                <a
-                  key={i}
-                  href={i === 0 ? '/opportunities/ai-hackathon' : '/opportunities'}
-                  className="block rounded-lg border border-borderline bg-surface-2/60 px-3 py-2.5 transition-colors hover:border-accent/50 group"
-                >
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="text-[10px] font-medium uppercase tracking-wider text-mut">{item.tag}</span>
-                    <span className="text-[11px] text-warning">{item.meta}</span>
+        </div>
+
+        {/* Subtitle & Mission Statement */}
+        <p className="mt-4 text-xs sm:text-sm font-mono text-slate-400 uppercase tracking-widest max-w-md">
+          Student Operating System // Spider Core
+        </p>
+
+        {/* Hero CTA Buttons */}
+        <div className="mt-8 flex flex-wrap items-center justify-center gap-4 z-40 relative">
+          <Link
+            href="/opportunities"
+            className="btn-pill-white shadow-lg shadow-black/40 hover:scale-[1.02] transition-transform flex items-center gap-2"
+          >
+            <span>Explore Opportunities</span>
+            <ArrowRight size={14} />
+          </Link>
+          <Link
+            href="/ideas/submit"
+            className="btn-pill-glass hover:border-white/20 transition-colors"
+          >
+            <span>Submit an Idea</span>
+          </Link>
+        </div>
+
+      </section>
+
+      {/* =========================================================================
+          SECTION 2: NUMBERS SPEAK FOR US (Translucent with visible background animation)
+          ========================================================================= */}
+      <section className="py-20 relative border-t border-white/5 bg-[#06080F]/45 backdrop-blur-[2px]">
+        <div className="container-s text-center">
+
+          <h2 className="text-2xl sm:text-4xl font-extrabold text-white tracking-tight uppercase mb-3">
+            Numbers Speak for Us
+          </h2>
+          <p className="text-slate-400 text-sm sm:text-base max-w-2xl mx-auto mb-14 leading-relaxed font-normal">
+            We design attention-grabbing, user-friendly resources and pathways that help engineering students achieve their career goals.
+          </p>
+
+          {/* 4 Stat Glass Cards Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {stats.map((item, idx) => (
+              <div
+                key={idx}
+                className="card-stat-glass p-8 flex flex-col items-center justify-center group"
+              >
+                <span className="text-4xl sm:text-5xl font-extrabold text-white tracking-tight mb-4 group-hover:scale-105 transition-transform duration-300">
+                  {item.number}
+                </span>
+
+                {/* Thin Vertical Divider */}
+                <div className="w-px h-8 bg-white/20 mb-4 group-hover:bg-red-500 transition-colors" />
+
+                <span className="text-sm font-semibold text-slate-300 group-hover:text-white transition-colors">
+                  {item.label}
+                </span>
+              </div>
+            ))}
+          </div>
+
+        </div>
+      </section>
+
+      {/* =========================================================================
+          SECTION 3: OUR PROCESS / 3 STEP SPHERES (Replicating Screenshot 3)
+          ========================================================================= */}
+      <section id="process" className="py-24 relative border-t border-white/5 bg-transparent">
+        <div className="container-s text-center">
+
+          <h2 className="heading-gold text-2xl sm:text-4xl tracking-wider uppercase mb-3">
+            Our Process
+          </h2>
+          <p className="text-slate-300 text-sm sm:text-base max-w-2xl mx-auto mb-16 leading-relaxed">
+            We are guided by clear and simple cooperation for student builders. Here's how you can start leveling up:
+          </p>
+
+          {/* 3 Step Spheres Grid (Screenshot 3) */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-10 lg:gap-14 mb-16">
+            {processSteps.map((step) => (
+              <Link
+                key={step.num}
+                href={step.href}
+                className="group flex flex-col items-center text-center transition-all"
+              >
+                {/* Glowing Numbered Sphere Container */}
+                <div className="relative w-44 h-44 sm:w-52 sm:h-52 mb-6 flex items-center justify-center">
+
+                  {/* Outer Dust Burst Background */}
+                  <div className={`absolute inset-0 rounded-full ${step.dustColor} blur-xl group-hover:scale-110 transition-transform duration-500`} />
+
+                  {/* Main 3D Sphere */}
+                  <div className={`relative w-36 h-36 sm:w-40 sm:h-40 rounded-full bg-gradient-to-tr ${step.color} ${step.glow} shadow-2xl flex items-center justify-center group-hover:scale-105 transition-transform duration-300`}>
+
+                    {/* Top Specular Highlight */}
+                    <div className="absolute top-2 left-4 w-12 h-6 rounded-full bg-white/40 blur-xs transform -rotate-45" />
+
+                    {/* Big Step Number */}
+                    <span className="text-6xl sm:text-7xl font-black text-white select-none drop-shadow-md">
+                      {step.num}
+                    </span>
                   </div>
-                  <p className="mt-1 text-sm font-medium transition-colors group-hover:text-accent">{item.title}</p>
-                  <p className="mt-0.5 text-xs text-mut">{item.skills}</p>
-                </a>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
 
-const QUICK_ACTIONS = [
-  { icon: Compass, label: 'Explore Opportunities', href: '/opportunities' },
-  { icon: Lightbulb, label: 'Submit an Idea', href: '/ideas/submit' },
-  { icon: Users, label: 'Find Teammates', href: '/opportunities' },
-  { icon: Rocket, label: 'Showcase Project', href: '/projects' },
-  { icon: BookOpen, label: 'Academic Resources', href: '/resources' },
-];
-
-function QuickActions() {
-  return (
-    <section className="container-s pb-10 bg-surface/50">
-      <div className="-mx-1 flex gap-3 overflow-x-auto px-1 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-        {QUICK_ACTIONS.map(({ icon: Icon, label, href }) => (
-          <a
-            key={href}
-            href={href}
-            className="flex shrink-0 items-center gap-2 rounded-lg border border-borderline bg-surface px-3.5 py-2 text-sm text-indigo-400 transition-colors hover:border-indigo-600/50"
-          >
-            <Icon size={16} className="text-indigo-400" />
-            {label}
-          </a>
-        ))}
-      </div>
-    </section>
-  );
-}
-
-function DeadlineBadge({ status, label }: { status: DeadlineStatus; label: string }) {
-  const dot = status === 'plenty' ? 'bg-success' : status === 'approaching' ? 'bg-warning' : 'bg-error';
-
-  return (
-    <span className={`inline-flex items-center gap-1.5 text-xs font-medium ${STATUS_STYLES[status]}`}>
-      <span className={`h-1.5 w-1.5 rounded-full ${dot}`} />
-      {label}
-    </span>
-  );
-}
-
-function OpportunitiesSection() {
-  return (
-    <section className="container-s py-8 bg-surface/50">
-      <SectionHeader
-        title="Opportunities worth your attention"
-        subtitle="Deadlines coming up and opportunities worth exploring."
-        href="/opportunities"
-        linkLabel="View all"
-      />
-      <div className="surface divide-y divide-border rounded-lg">
-        {opportunities.map((o) => (
-          <a
-            key={o.id}
-            href={`/opportunities/${o.id}`}
-            className="group flex flex-col gap-3 px-4 py-4 rounded-md transition-colors hover:bg-indigo-500/10 md:flex-row md:items-center"
-          >
-            <div className="min-w-0 flex-1">
-              <p className="text-xs uppercase tracking-wide text-indigo-400">{o.org}</p>
-              <p className="mt-0.5 font-medium group-hover:text-indigo-400 transition-colors">{o.title}</p>
-              <p className="mt-1 text-xs text-mut">
-                {o.type} · {o.location}
-              </p>
-              <p className="mt-1 text-xs text-mut">{o.skills.join(' · ')}</p>
-            </div>
-            <div className="flex items-center gap-3 md:flex-col md:items-end">
-              <div>
-                <p className="text-xs uppercase tracking-wide text-mut">Deadline</p>
-                <p className="text-sm font-medium">{o.deadline}</p>
-                <DeadlineBadge status={o.status} label={`${o.daysLeft} days left`} />
-              </div>
-              <span className="flex items-center gap-1 rounded-md bg-indigo-500/10 px-2.5 py-0.5 text-xs text-indigo-400 font-medium md:hidden group-hover:text-indigo-300">
-                View <ArrowRight size={14} />
-              </span>
-            </div>
-          </a>
-        ))}
-      </div>
-    </section>
-  );
-}
-
-const CATEGORY_ICONS: Record<string, typeof Compass> = {
-  hackathons: Code2,
-  internships: Briefcase,
-  competitions: Trophy,
-  fellowships: GraduationCap,
-  research: Brain,
-  workshops: Users,
-};
-
-function CategoriesSection() {
-  return (
-    <section className="container-s py-6">
-      <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-6">
-        {categories.map((c) => {
-          const Icon = CATEGORY_ICONS[c.id] ?? Compass;
-          return (
-            <a
-              key={c.id}
-              href={`/opportunities?type=${c.name.toLowerCase()}`}
-              className="rounded-lg border border-borderline bg-surface px-3 py-2.5 transition-colors hover:border-accent/50"
-            >
-              <div className="flex items-center gap-2">
-                <Icon size={15} className="text-mut" />
-                <span className="text-sm font-medium">{c.name}</span>
-              </div>
-              <p className="mt-1 pl-[22px] text-xs text-mut">{c.count} opportunities</p>
-            </a>
-          );
-        })}
-      </div>
-    </section>
-  );
-}
-
-function HappeningNow() {
-  return (
-    <section className="container-s py-8">
-      <SectionHeader title="What's happening now" />
-      <div className="grid gap-4 md:grid-cols-2">
-        <div className="surface p-4">
-          <p className="mb-3 flex items-center gap-2 text-sm font-medium">
-            <Calendar size={15} className="text-accent" /> Upcoming campus events
-          </p>
-          <div className="space-y-3">
-            {hotEvents.map((ev, i) => (
-              <a key={i} href="/opportunities" className="group flex items-center gap-3">
-                <div className="flex h-11 w-11 shrink-0 flex-col items-center justify-center rounded-lg border border-borderline bg-surface-2">
-                  <span className="text-sm font-bold leading-none">{ev.day}</span>
-                  <span className="text-[10px] uppercase text-mut">{ev.month}</span>
                 </div>
-                <div className="min-w-0 flex-1">
-                  <p className="text-sm font-medium transition-colors group-hover:text-accent">{ev.title}</p>
-                  <p className="text-xs text-mut">{ev.location}</p>
-                </div>
-                <span className="shrink-0 text-xs text-mut">{ev.time}</span>
-              </a>
+
+                <h3 className="heading-gold text-xl font-bold mb-2 group-hover:text-white transition-colors">
+                  {step.title}
+                </h3>
+                <p className="text-xs sm:text-sm text-slate-300 max-w-xs leading-relaxed">
+                  {step.desc}
+                </p>
+              </Link>
             ))}
           </div>
-        </div>
 
-        <div className="surface p-4">
-          <p className="mb-3 flex items-center gap-2 text-sm font-medium">
-            <Timer size={15} className="text-warning" /> Important deadlines
-          </p>
-          <div className="space-y-3">
-            {deadlines.map((d) => (
-              <div key={d.title} className="flex items-center justify-between gap-3">
-                <a href="/opportunities" className="text-sm transition-colors hover:text-accent">
-                  {d.title}
-                </a>
-                <DeadlineBadge status={d.status} label={`${d.daysLeft} days left`} />
-              </div>
-            ))}
+          {/* Process Bottom CTA Pills (Screenshot 3) */}
+          <div className="flex flex-wrap items-center justify-center gap-4">
+            <Link href="/career" className="btn-pill-glass">
+              <span>Learn More</span>
+            </Link>
+            <Link href="/ideas" className="btn-pill-white">
+              <span>Join a Squad</span>
+              <ArrowRight size={14} />
+            </Link>
           </div>
+
         </div>
-      </div>
-    </section>
-  );
-}
+      </section>
 
-function StudentInnovation() {
-  return (
-    <section className="container-s py-8">
-      <SectionHeader
-        title="What students are building"
-        subtitle="Discover projects and ideas being built by students."
-        href="/projects"
-        linkLabel="View all projects"
-      />
-      <div className="grid gap-4 md:grid-cols-2">
-        <a href={`/projects/${featuredProject.id}`} className="group surface overflow-hidden p-0">
-          <div className="relative flex h-44 items-center justify-center bg-gradient-to-br from-surface-2 to-borderline">
-            <Box size={56} className="text-mut/40 transition-colors group-hover:text-accent/50" />
-            <span className="absolute left-3 top-3 rounded border border-borderline bg-bg/80 px-2 py-1 text-[10px] uppercase tracking-wider text-mut">
-              Featured
-            </span>
+      {/* =========================================================================
+          SECTION 4: 4-YEAR JOURNEY & TIMELINE (Translucent with visible background animation)
+          ========================================================================= */}
+      <section className="py-24 relative border-t border-white/5 bg-[#06080F]/50 backdrop-blur-[2px]">
+
+        {/* Cosmic Mountain Landscape Atmosphere */}
+        <div className="container-s">
+
+          <div className="text-center max-w-2xl mx-auto mb-16">
+            <p className="text-indigo-300 text-xs sm:text-sm font-semibold uppercase tracking-widest mb-2">
+              We are sure that your college career has just started,
+            </p>
+            <h2 className="heading-gold text-2xl sm:text-4xl tracking-wider uppercase mb-3">
+              4-Year Engineering Journey
+            </h2>
+            <p className="text-slate-300 text-xs sm:text-sm leading-relaxed">
+              Your most prominent achievements are still ahead. Follow the curated milestones across your degree:
+            </p>
           </div>
-          <div className="p-4">
-            <h3 className="text-lg font-semibold transition-colors group-hover:text-accent">{featuredProject.name}</h3>
-            <p className="mt-1 text-xs text-mut">{featuredProject.tech.join(' · ')}</p>
-            <p className="mt-2 text-sm leading-relaxed text-mut">{featuredProject.desc}</p>
-            <div className="mt-3 flex items-center justify-between">
-              <span className="text-xs text-mut">Team of {featuredProject.team}</span>
-              <span className="flex items-center gap-1 text-sm text-accent">
-                View Project <ArrowRight size={14} />
-              </span>
-            </div>
-          </div>
-        </a>
 
-        <div className="flex flex-col gap-4">
-          {secondaryProjects.map((p) => (
-            <a key={p.id} href={`/projects/${p.id}`} className="group surface flex flex-1 items-center gap-3 p-4">
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg border border-borderline bg-surface-2">
-                <Rocket size={20} className="text-mut" />
-              </div>
-              <div className="min-w-0 flex-1">
-                <h4 className="font-medium transition-colors group-hover:text-accent">{p.name}</h4>
-                <p className="text-xs text-mut">{p.tech.join(' · ')}</p>
-              </div>
-              <ArrowRight size={16} className="shrink-0 text-mut" />
-            </a>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
+          {/* Concentric Timeline Rows (Screenshot 4) */}
+          <div className="space-y-4 max-w-4xl mx-auto">
+            {milestones.map((m, idx) => (
+              <div
+                key={idx}
+                className="card-cosmic p-6 sm:p-7 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 group hover:border-pink-500/40"
+              >
+                {/* Left Concentric Circle Ring (Screenshot 4) */}
+                <div className="flex items-center gap-5 shrink-0">
+                  <div className="concentric-ring shrink-0">
+                    <span className="text-xs font-extrabold text-white tracking-wide">
+                      {m.year}
+                    </span>
+                  </div>
 
-const WORKFLOW = ['Idea', 'Team', 'Build', 'Showcase'];
+                  {/* Milestone Title */}
+                  <div className="md:w-44">
+                    <h3 className="heading-gold text-base sm:text-lg font-bold">
+                      {m.title}
+                    </h3>
+                  </div>
+                </div>
 
-function IdeaHubPreview() {
-  return (
-    <section className="container-s py-8">
-      <SectionHeader
-        title="Have an idea?"
-        subtitle="Don't build it alone. Find the people, skills and support you need."
-        href="/ideas"
-        linkLabel="Explore Idea Hub"
-      />
-      <div className="grid items-start gap-4 md:grid-cols-2">
-        <div className="surface p-5">
-          <p className="eyebrow mb-4">How StudOS works</p>
-          <div>
-            {WORKFLOW.map((step, i) => (
-              <div key={step}>
-                <div className="flex items-center gap-3">
-                  <span className="flex h-7 w-7 items-center justify-center rounded-full border border-accent/40 text-xs font-semibold text-accent">
-                    {i + 1}
+                {/* Milestone Description */}
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
+                    {m.desc}
+                  </p>
+                </div>
+
+                {/* Milestone Tag / Location */}
+                <div className="shrink-0 text-left md:text-right">
+                  <span className="inline-block px-3 py-1 rounded-full text-xs font-semibold bg-white/5 border border-white/10 text-pink-300">
+                    {m.location}
                   </span>
-                  <span className="font-medium">{step}</span>
                 </div>
-                {i < WORKFLOW.length - 1 && <div className="ml-[13px] h-5 w-px bg-borderline" />}
+
               </div>
             ))}
           </div>
-        </div>
 
-        <div className="space-y-3">
-          {activeIdeas.map((idea) => (
-            <a
-              key={idea.id}
-              href={`/ideas/${idea.id}`}
-              className="group surface flex items-center justify-between gap-3 p-4 transition-colors hover:border-accent/50"
-            >
-              <div className="min-w-0">
-                <p className="font-medium transition-colors group-hover:text-accent">{idea.title}</p>
-                <p className="mt-1 text-xs text-mut">
-                  Looking for: <span className="text-fg">{idea.lookingFor.join(', ')}</span>
-                </p>
-                <p className="text-xs text-mut">
-                  Support: <span className="text-accent">{idea.support}</span>
-                </p>
+          <div className="mt-12 text-center">
+            <Link href="/roadmap" className="btn-pill-white">
+              <span>View Full Interactive Roadmap</span>
+              <ArrowRight size={15} />
+            </Link>
+          </div>
+
+        </div>
+      </section>
+
+      {/* =========================================================================
+          SECTION 5: FEATURED INNOVATIONS & PROJECTS SHOWCASE (REFERENCE IMAGE)
+          ========================================================================= */}
+      <ProjectShowcase />
+
+      {/* =========================================================================
+          SECTION 6: LIVE OPPORTUNITIES & RESOURCES PREVIEW
+          ========================================================================= */}
+      <section className="py-20 border-t border-white/5 bg-transparent">
+        <div className="container-s">
+
+          <div className="flex flex-col md:flex-row items-start md:items-end justify-between gap-4 mb-10">
+            <div>
+              <span className="heading-gold text-xs uppercase tracking-widest block mb-1">
+                Verified Portal
+              </span>
+              <h2 className="text-2xl sm:text-3xl font-extrabold text-white">
+                Active Student Opportunities
+              </h2>
+            </div>
+            <Link href="/opportunities" className="btn-secondary text-xs">
+              <span>Browse All 150+ Listings</span>
+              <ArrowRight size={13} />
+            </Link>
+          </div>
+
+          {/* Opportunities Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+            {recentOpportunities.map((opp) => (
+              <div
+                key={opp.id}
+                className="card-cosmic p-6 flex flex-col justify-between group"
+              >
+                <div>
+                  <div className="flex items-center justify-between gap-2 mb-3">
+                    <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-pink-500/20 text-pink-300 border border-pink-500/30">
+                      {opp.type}
+                    </span>
+                    <span className="text-xs font-semibold text-amber-300">
+                      {opp.deadline}
+                    </span>
+                  </div>
+
+                  <h3 className="font-bold text-base text-white group-hover:text-pink-400 transition-colors mb-1.5">
+                    {opp.title}
+                  </h3>
+                  <p className="text-xs text-slate-400 mb-4">
+                    {opp.organization} · {opp.mode}
+                  </p>
+
+                  <div className="flex flex-wrap gap-1.5 mb-5">
+                    {opp.skills.map((s) => (
+                      <span key={s} className="px-2 py-0.5 rounded-full text-[10px] font-medium bg-white/5 text-slate-300 border border-white/10">
+                        {s}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="pt-4 border-t border-white/10 flex items-center justify-between text-xs">
+                  <span className="font-bold text-cyan-400">
+                    {opp.reward}
+                  </span>
+                  <Link href="/opportunities" className="text-white font-semibold flex items-center gap-1 group-hover:translate-x-0.5 transition-transform">
+                    <span>Details</span>
+                    <ArrowRight size={12} />
+                  </Link>
+                </div>
               </div>
-              <ArrowRight size={16} className="shrink-0 text-mut" />
-            </a>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function ResourcesPreview() {
-  return (
-    <section className="container-s py-8">
-      <SectionHeader
-        title="Need to study?"
-        subtitle="Find previous papers, notes, syllabi and academic resources."
-        href="/resources"
-        linkLabel="Explore Resources"
-      />
-      <div className="grid items-start gap-4 md:grid-cols-2">
-        <div className="grid grid-cols-2 gap-2">
-          {years.map((y) => (
-            <a
-              key={y}
-              href="/resources"
-              className="rounded-lg border border-borderline bg-surface px-3 py-3 transition-colors hover:border-accent/50"
-            >
-              <p className="text-sm font-medium">{y}</p>
-              <p className="text-xs text-mut">View resources</p>
-            </a>
-          ))}
-        </div>
-        <div className="surface flex items-center justify-between p-4">
-          <p className="text-xs text-mut">Navigate by</p>
-          <div className="flex flex-wrap items-center gap-1.5 text-xs">
-            <span className="rounded-md border border-borderline bg-surface-2 px-2 py-1">Year</span>
-            <ArrowRight size={12} className="text-mut" />
-            <span className="rounded-md border border-borderline bg-surface-2 px-2 py-1">Branch</span>
-            <ArrowRight size={12} className="text-mut" />
-            <span className="rounded-md border border-borderline bg-surface-2 px-2 py-1">Semester</span>
-            <ArrowRight size={12} className="text-mut" />
-            <span className="rounded-md border border-accent/40 bg-accent/20 px-2 py-1 text-accent">Subject</span>
+            ))}
           </div>
-        </div>
-      </div>
-    </section>
-  );
-}
 
-function Personalization() {
-  return (
-    <section className="container-s py-8">
-      <div className="surface p-5">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div>
-            <p className="eyebrow mb-1">Demo preview</p>
-            <h2 className="text-xl font-semibold tracking-tight">Built around you</h2>
-            <p className="mt-1 text-sm text-mut">Based on your interests:</p>
-          </div>
-          <div className="flex flex-wrap gap-3">
-            <div className="rounded-lg border border-borderline bg-surface-2 px-3 py-2">
-              <p className="text-lg font-semibold">{personalization.aiMlOpportunities}</p>
-              <p className="text-xs text-mut">AI/ML opportunities</p>
-            </div>
-            <div className="rounded-lg border border-borderline bg-surface-2 px-3 py-2">
-              <p className="text-lg font-semibold">{personalization.hackathons}</p>
-              <p className="text-xs text-mut">Hackathons</p>
-            </div>
-            <div className="rounded-lg border border-borderline bg-surface-2 px-3 py-2">
-              <p className="text-lg font-semibold">{personalization.projectsLooking}</p>
-              <p className="text-xs text-mut">Projects looking for teammates</p>
-            </div>
-          </div>
         </div>
-      </div>
-    </section>
-  );
-}
+      </section>
 
-function FinalCta() {
-  return (
-    <section className="container-s py-12">
-      <div className="surface p-8 text-center md:p-10">
-        <h2 className="text-2xl font-semibold tracking-tight md:text-3xl">
-          Your next opportunity could start here.
-        </h2>
-        <a href="/opportunities" className="btn-primary mt-5 inline-flex items-center gap-2">
-          Explore StudOS <ArrowRight size={16} />
-        </a>
-      </div>
-    </section>
-  );
-}
+      {/* Floating Back to Top Button (Matching Screenshot) */}
+      <BackToTop />
 
-const FOOTER_COLS = [
-  {
-    heading: 'Product',
-    links: [
-      { label: 'Opportunities', href: '/opportunities' },
-      { label: 'Ideas', href: '/ideas' },
-      { label: 'Teams', href: '/teams' },
-      { label: 'Projects', href: '/projects' },
-    ],
-  },
-  {
-    heading: 'Campus',
-    links: [
-      { label: 'Campus', href: '/campus' },
-      { label: 'Classrooms', href: '/campus/classrooms' },
-      { label: 'Events', href: '/campus/events' },
-    ],
-  },
-  {
-    heading: 'Resources',
-    links: [{ label: 'Academic Resources', href: '/resources' }],
-  },
-  {
-    heading: 'Company',
-    links: [
-      { label: 'About', href: '#' },
-      { label: 'Contact', href: '#' },
-    ],
-  },
-  {
-    heading: 'Legal',
-    links: [
-      { label: 'Privacy', href: '#' },
-      { label: 'Terms', href: '#' },
-    ],
-  },
-];
-
-function Footer() {
-  return (
-    <footer className="mt-8 border-t border-borderline">
-      <div className="container-s grid gap-8 py-10 md:grid-cols-[1.5fr_1fr]">
-        <div>
-          <div className="flex items-center gap-2">
-            <span className="flex h-6 w-6 items-center justify-center rounded-md bg-accent text-sm font-bold text-white">
-              S
-            </span>
-            <span className="text-lg font-semibold tracking-tight">StudOS</span>
-          </div>
-          <p className="mt-2 text-sm text-mut">Discover. Connect. Build.</p>
-          <p className="mt-1 text-xs text-mut">
-            The student operating system for opportunities, teams, projects, and campus.
-          </p>
-        </div>
-        <div className="grid grid-cols-2 gap-6 sm:grid-cols-3">
-          {FOOTER_COLS.map((col) => (
-            <div key={col.heading}>
-              <p className="mb-2 text-xs uppercase tracking-wide text-mut">{col.heading}</p>
-              <ul className="space-y-1.5">
-                {col.links.map((l) => (
-                  <li key={l.label}>
-                    <a href={l.href} className="text-sm text-fg/80 transition-colors hover:text-accent">
-                      {l.label}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
-        </div>
-      </div>
-      <div className="border-t border-borderline">
-        <div className="container-s flex flex-wrap items-center justify-between gap-2 py-4">
-          <p className="text-xs text-mut">© {new Date().getFullYear()} StudOS. Demo prototype.</p>
-          <p className="text-xs text-mut">Made by students, for students.</p>
-        </div>
-      </div>
-    </footer>
-  );
-}
-
-export default function Home() {
-  return (
-    <div className="min-h-screen bg-bg text-fg">
-      <Hero />
-      <QuickActions />
-      <OpportunitiesSection />
-      <CategoriesSection />
-      <HappeningNow />
-      <StudentInnovation />
-      <IdeaHubPreview />
-      <ResourcesPreview />
-      <Personalization />
-      <FinalCta />
-      <Footer />
     </div>
   );
 }

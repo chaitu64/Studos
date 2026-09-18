@@ -7,50 +7,43 @@ interface StudentStageProps {
 
 export function StudentStage({ roadmap }: StudentStageProps) {
   return (
-    <div className="bg-gray-50 dark:bg-gray-900 border-y border-gray-200 dark:border-gray-800 py-4">
-      <div className="container mx-auto max-w-7xl px-4 md:px-6">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div className="flex flex-col md:flex-row md:items-center gap-4 md:gap-8">
+    <div className="border-b border-white/[0.08] bg-[#0c0e15]/70 py-5 backdrop-blur-md">
+      <div className="container-s">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-6">
             <div>
-              <p className="text-xs text-gray-500 dark:text-gray-400 font-medium uppercase tracking-wider mb-1">Your Current Stage</p>
-              <p className="font-semibold text-gray-900 dark:text-white">
-                {roadmap.studentContext.branch} &middot; {roadmap.studentContext.year}
+              <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1">Your Academic Stage</p>
+              <p className="text-sm font-extrabold text-white">
+                {roadmap.studentContext.branch} • {roadmap.studentContext.year}
               </p>
             </div>
 
-            <div className="hidden md:block w-px h-8 bg-gray-300 dark:bg-gray-700"></div>
-
-            <div>
-              <p className="text-xs text-gray-500 dark:text-gray-400 font-medium uppercase tracking-wider mb-1">Career Goal</p>
-              <p className="font-medium text-gray-800 dark:text-gray-200">{roadmap.careerPath}</p>
+            <div className="border-l border-white/[0.08] pl-6">
+              <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1">Target Role</p>
+              <p className="text-sm font-bold text-indigo-300">{roadmap.careerPath}</p>
             </div>
 
-            <div className="hidden md:block w-px h-8 bg-gray-300 dark:bg-gray-700"></div>
-
-            <div>
-              <p className="text-xs text-gray-500 dark:text-gray-400 font-medium uppercase tracking-wider mb-1">Current Focus</p>
-              <p className="font-medium text-gray-800 dark:text-gray-200">
-                {roadmap.stages.find(s => s.status === 'current')?.title || "Building Foundations"}
+            <div className="border-l border-white/[0.08] pl-6 col-span-2 sm:col-span-1">
+              <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1">Current Focus</p>
+              <p className="text-sm font-semibold text-slate-200">
+                {roadmap.stages.find(s => s.status === 'current')?.title || "Building Core Foundations"}
               </p>
             </div>
           </div>
 
-          <div className="flex items-center gap-4">
-            <div className="flex flex-col items-end">
-              <p className="text-xs text-gray-500 dark:text-gray-400 font-medium uppercase tracking-wider mb-1">Progress</p>
-              <div className="flex items-center gap-2">
-                <div className="w-24 h-2 bg-gray-200 dark:bg-gray-800 rounded-full overflow-hidden">
+          <div className="flex items-center gap-4 bg-white/[0.03] p-3 rounded-xl border border-white/[0.06]">
+            <div className="flex flex-col">
+              <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Overall Roadmap Progress</span>
+              <div className="flex items-center gap-3 mt-1.5">
+                <div className="w-32 h-2 bg-white/[0.08] rounded-full overflow-hidden">
                   <div
-                    className="h-full bg-indigo-600 rounded-full"
+                    className="h-full bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full shadow-glow-sm"
                     style={{ width: `${roadmap.overallProgress}%` }}
-                  ></div>
+                  />
                 </div>
-                <span className="text-sm font-bold text-gray-900 dark:text-white">{roadmap.overallProgress}%</span>
+                <span className="text-xs font-extrabold text-white">{roadmap.overallProgress}%</span>
               </div>
             </div>
-            <button className="text-sm font-medium text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 ml-4">
-              Edit roadmap
-            </button>
           </div>
         </div>
       </div>

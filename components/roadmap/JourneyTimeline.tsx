@@ -1,5 +1,9 @@
+'use client';
+
 import React from 'react';
 import { RoadmapStage } from '@/types/roadmap';
+import { Check, Target, Circle, ArrowRight } from 'lucide-react';
+import { Card3D } from '@/components/ui/Card3D';
 
 interface JourneyTimelineProps {
   stages: RoadmapStage[];
@@ -7,93 +11,113 @@ interface JourneyTimelineProps {
 
 export function JourneyTimeline({ stages }: JourneyTimelineProps) {
   return (
-    <div className="py-12">
+    <div className="py-10">
       <div className="mb-8">
-        <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Your journey</h2>
-        <p className="text-gray-600 dark:text-gray-400 mt-2">See your progression through college.</p>
+        <span className="text-xs font-bold uppercase tracking-wider text-indigo-400 block mb-1">Visual Progression</span>
+        <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">Your 4-Year College Journey</h2>
+        <p className="mt-1 text-xs sm:text-sm text-slate-300">Step-by-step milestones to complete from First Year through Campus Placements.</p>
       </div>
 
       <div className="relative">
-        {/* Desktop Line */}
-        <div className="hidden md:block absolute top-8 left-0 w-full h-1 bg-gray-200 dark:bg-gray-800 -z-10 rounded-full"></div>
+        <div className="hidden md:block absolute top-[24px] left-0 w-full h-[2px] bg-gradient-to-r from-emerald-500/40 via-indigo-500/40 to-purple-500/40 -z-10" />
 
-        <div className="flex flex-col md:flex-row gap-6 md:gap-4 relative z-0">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 relative z-0">
           {stages.map((stage, index) => {
             const isCompleted = stage.status === 'completed';
             const isCurrent = stage.status === 'current';
 
             return (
-              <div key={stage.id} className="flex-1 flex md:block relative">
-                {/* Mobile Line */}
-                {index !== stages.length - 1 && (
-                  <div className="md:hidden absolute top-8 left-4 w-1 h-full bg-gray-200 dark:bg-gray-800 -z-10"></div>
-                )}
-
-                <div className="mr-6 md:mr-0 md:mb-4 relative">
-                  <div
-                    className={`w-8 h-8 rounded-full flex items-center justify-center border-2 mx-auto md:mx-0
-                      ${isCompleted ? 'bg-indigo-600 border-indigo-600 text-white' :
-                        isCurrent ? 'bg-white dark:bg-gray-950 border-indigo-600' :
-                        'bg-white dark:bg-gray-950 border-gray-300 dark:border-gray-700'}
-                    `}
-                  >
-                    {isCompleted && (
-                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                      </svg>
+              <div key={stage.id} className="flex flex-col">
+                <div className="mb-4 relative shrink-0 flex items-center justify-start">
+                  {/* Concentric 3D Orbit Node */}
+                  <div className="relative">
+                    {isCurrent && (
+                      <div className="absolute -inset-2 rounded-full border border-indigo-400/40 animate-ping pointer-events-none" />
                     )}
-                    {isCurrent && <div className="w-3 h-3 bg-indigo-600 rounded-full"></div>}
+                    <div
+                      className={`h-11 w-11 rounded-full flex items-center justify-center border-2 transition-all shadow-md relative z-10 ${
+                        isCompleted
+                          ? 'bg-emerald-500/20 border-emerald-500 text-emerald-300 shadow-emerald-500/20 shadow-[0_0_15px_rgba(16,185,129,0.3)]'
+                          : isCurrent
+                            ? 'bg-indigo-500/20 border-indigo-500 text-indigo-300 ring-4 ring-indigo-500/20 shadow-glow-sm shadow-[0_0_20px_rgba(99,102,241,0.4)]'
+                            : 'bg-white/[0.04] border-white/[0.1] text-slate-500'
+                      }`}
+                    >
+                      {isCompleted ? (
+                        <Check size={16} className="stroke-[3px]" />
+                      ) : isCurrent ? (
+                        <Target size={16} className="text-indigo-400" />
+                      ) : (
+                        <Circle size={14} className="stroke-[2px]" />
+                      )}
+                    </div>
                   </div>
                 </div>
 
-                <div className={`p-5 rounded-xl border ${isCurrent ? 'border-indigo-200 dark:border-indigo-900/50 bg-indigo-50/50 dark:bg-indigo-900/10 shadow-sm' : 'border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950'} flex-1`}>
-                  <p className="text-xs font-bold text-gray-500 dark:text-gray-400 mb-1">{stage.year}</p>
-                  <div className="flex items-center gap-2 mb-2">
-                    <h3 className={`text-lg font-bold ${isCurrent ? 'text-indigo-900 dark:text-indigo-100' : 'text-gray-900 dark:text-white'}`}>
-                      {stage.title}
-                    </h3>
-                    {isCurrent && (
-                      <span className="px-2 py-0.5 rounded-full bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300 text-xs font-bold uppercase tracking-wider">
-                        Current
-                      </span>
-                    )}
-                  </div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 line-clamp-2">
-                    {stage.description}
-                  </p>
+                <Card3D maxTilt={6} scale={1.02} glare={true} className="cyber-hud-card h-full">
+                  <div className="holo-scanner-sweep" />
+                  <div
+                    className={`glass-panel p-5 h-full flex flex-col justify-between rounded-2xl border transition-all preserve-3d ${
+                      isCurrent
+                        ? 'border-indigo-500/50 bg-indigo-500/[0.06] shadow-glow-sm shadow-[0_0_30px_rgba(99,102,241,0.15)]'
+                        : 'border-white/[0.08] bg-[#0A071E]/90'
+                    }`}
+                  >
+                    <div>
+                      <div className="mb-2 flex items-center gap-1.5">
+                        <span className="rounded-full bg-white/[0.06] border border-white/[0.08] px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-slate-300 translate-z-20">
+                          {stage.year}
+                        </span>
+                        {isCurrent && (
+                          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 flex items-center gap-1">
+                            <span className="h-1.5 w-1.5 rounded-full bg-indigo-400 animate-pulse" /> Active Stage
+                          </span>
+                        )}
+                      </div>
 
-                  {isCurrent && stage.milestones.length > 0 && (
-                    <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-800">
-                      <p className="text-xs font-medium text-gray-500 mb-3">CURRENT MILESTONES</p>
-                      <ul className="space-y-2">
-                        {stage.milestones.slice(0, 3).map(m => (
-                          <li key={m.id} className="text-sm flex items-start gap-2">
-                            <span className="text-indigo-500 mt-0.5">•</span>
-                            <span className="text-gray-700 dark:text-gray-300">{m.title}</span>
-                          </li>
-                        ))}
-                      </ul>
-                      <div className="mt-4">
-                        <div className="flex justify-between text-xs text-gray-500 mb-1">
-                          <span>Progress</span>
-                          <span>{stage.milestones.filter(m => m.status === 'completed').length} / {stage.milestones.length}</span>
-                        </div>
-                        <div className="w-full h-1.5 bg-gray-200 dark:bg-gray-800 rounded-full overflow-hidden">
-                          <div
-                            className="h-full bg-indigo-600 rounded-full"
-                            style={{ width: `${(stage.milestones.filter(m => m.status === 'completed').length / stage.milestones.length) * 100}%` }}
-                          ></div>
+                      <h3 className={`font-bold text-base mb-1 ${isCurrent ? 'text-indigo-300' : 'text-white'}`}>
+                        {stage.title}
+                      </h3>
+
+                      <p className="text-xs leading-relaxed text-slate-300 mb-4 line-clamp-3">
+                        {stage.description}
+                      </p>
+                    </div>
+
+                    {isCurrent && stage.milestones.length > 0 && (
+                      <div className="mt-3 pt-3 border-t border-white/[0.08]">
+                        <p className="text-[10px] font-bold uppercase tracking-wider text-indigo-400 mb-2">Stage Milestones</p>
+                        <ul className="space-y-1.5 mb-4">
+                          {stage.milestones.slice(0, 3).map((m) => (
+                            <li key={m.id} className="text-xs flex items-start gap-2 font-medium text-slate-200">
+                              <span className="mt-0.5 flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded-full bg-emerald-500/20 text-[8px] font-bold text-emerald-300 border border-emerald-500/30">
+                                <Check size={8} className="stroke-[3px]" />
+                              </span>
+                              <span>{m.title}</span>
+                            </li>
+                          ))}
+                        </ul>
+
+                        <div className="mt-auto">
+                          <div className="flex justify-between text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">
+                            <span>Progress</span>
+                            <span className="text-indigo-400 font-bold">
+                              {stage.milestones.filter((m) => m.status === 'completed').length} / {stage.milestones.length}
+                            </span>
+                          </div>
+                          <div className="w-full h-1.5 bg-white/[0.08] rounded-full overflow-hidden">
+                            <div
+                              className="h-full bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full transition-all"
+                              style={{
+                                width: `${(stage.milestones.filter((m) => m.status === 'completed').length / stage.milestones.length) * 100}%`,
+                              }}
+                            />
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  )}
-
-                  {!isCurrent && (
-                    <button className="text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 mt-2">
-                      View stage →
-                    </button>
-                  )}
-                </div>
+                    )}
+                  </div>
+                </Card3D>
               </div>
             );
           })}
