@@ -31,14 +31,14 @@ export function ToastProvider({ children }: { children: ReactNode }) {
       <div
         role="status"
         aria-live="polite"
-        className="fixed bottom-6 left-1/2 z-[60] -translate-x-1/2 space-y-2"
+        className="fixed bottom-6 left-1/2 z-[60] -translate-x-1/2 space-y-2 pointer-events-none"
       >
         {toasts.map((t) => (
           <div
             key={t.id}
-            className="surface-2 px-4 py-2.5 text-sm text-fg shadow-lg animate-fade-up border-borderline"
+            className="rounded-xl border border-slate-800 bg-slate-900/95 backdrop-blur-md px-4 py-2.5 text-xs font-semibold text-white shadow-xl animate-fade-up pointer-events-auto flex items-center gap-2"
           >
-            {t.message}
+            <span>{t.message}</span>
           </div>
         ))}
       </div>

@@ -1,5 +1,6 @@
 import React from 'react';
 import { SkillRecommendation } from '@/types/roadmap';
+import { ArrowRight, Sparkles, CheckCircle2 } from 'lucide-react';
 
 interface SkillGroupProps {
   skills: SkillRecommendation[];
@@ -11,50 +12,57 @@ export function SkillGroup({ skills }: SkillGroupProps) {
   const next = skills.filter(s => s.category === 'next');
 
   const SkillItem = ({ skill }: { skill: SkillRecommendation }) => (
-    <div className="p-4 rounded-lg border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 hover:border-indigo-300 dark:hover:border-indigo-800 transition-colors group">
-      <div className="flex justify-between items-start mb-2">
-        <h4 className="font-bold text-gray-900 dark:text-white">{skill.name}</h4>
-        <span className={`text-xs px-2 py-1 rounded-md font-medium capitalize
-          ${skill.status === 'completed' ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' :
-            skill.status === 'learning' ? 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400' :
-            'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400'}
-        `}>
-          {skill.status.replace('_', ' ')}
-        </span>
+    <div className="glass-card p-5 rounded-2xl border border-white/[0.08] hover:border-indigo-500/40 flex flex-col justify-between group h-full">
+      <div>
+        <div className="flex justify-between items-start gap-3 mb-2.5">
+          <h4 className="font-bold text-sm text-white group-hover:text-indigo-300 transition-colors">{skill.name}</h4>
+          <span className={`shrink-0 rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider ${skill.status === 'completed'
+              ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
+              : skill.status === 'learning'
+                ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
+                : 'bg-white/[0.05] text-slate-400 border border-white/[0.08]'
+            }`}>
+            {skill.status.replace('_', ' ')}
+          </span>
+        </div>
+
+        <p className="text-xs leading-relaxed text-slate-300 mb-4 line-clamp-2">
+          {skill.whyItMatters}
+        </p>
       </div>
 
-      <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 h-10 line-clamp-2">
-        {skill.whyItMatters}
-      </p>
+      <div>
+        <div className="flex items-center justify-between text-[10px] font-semibold tracking-wider uppercase mb-1.5 text-slate-400">
+          <span>Mastery</span>
+          <span className="text-indigo-400 font-bold">{skill.currentLevel === 'none' ? 'New' : skill.currentLevel} → {skill.targetLevel}</span>
+        </div>
 
-      <div className="flex items-center justify-between text-xs mb-1">
-        <span className="text-gray-500 font-medium uppercase tracking-wider">Level</span>
-        <span className="text-gray-900 dark:text-gray-300 capitalize">{skill.currentLevel === 'none' ? 'Not started' : skill.currentLevel} → {skill.targetLevel}</span>
+        <div className="flex gap-1 h-1.5 mb-4">
+          <div className={`flex-1 rounded-l-full ${skill.currentLevel !== 'none' ? 'bg-indigo-500' : 'bg-white/[0.08]'}`} />
+          <div className={`flex-1 ${['intermediate', 'advanced'].includes(skill.currentLevel) ? 'bg-indigo-500' : 'bg-white/[0.08]'}`} />
+          <div className={`flex-1 rounded-r-full ${skill.currentLevel === 'advanced' ? 'bg-indigo-500' : 'bg-white/[0.08]'}`} />
+        </div>
+
+        <button className="btn-subtle w-full justify-center text-xs py-2 font-semibold">
+          <span>{skill.status === 'completed' ? 'Review Skill' : skill.status === 'learning' ? 'Continue Learning' : 'Start Learning'}</span>
+          <ArrowRight size={13} />
+        </button>
       </div>
-
-      <div className="flex gap-1 h-1.5 mb-4">
-        <div className={`flex-1 rounded-l-full ${skill.currentLevel !== 'none' ? 'bg-indigo-600' : 'bg-gray-200 dark:bg-gray-800'}`}></div>
-        <div className={`flex-1 ${['intermediate', 'advanced'].includes(skill.currentLevel) ? 'bg-indigo-600' : 'bg-gray-200 dark:bg-gray-800'}`}></div>
-        <div className={`flex-1 rounded-r-full ${skill.currentLevel === 'advanced' ? 'bg-indigo-600' : 'bg-gray-200 dark:bg-gray-800'}`}></div>
-      </div>
-
-      <button className="w-full text-center text-sm font-medium text-indigo-600 dark:text-indigo-400 group-hover:text-indigo-700 dark:group-hover:text-indigo-300 bg-indigo-50 dark:bg-indigo-900/10 hover:bg-indigo-100 dark:hover:bg-indigo-900/20 py-2 rounded-md transition-colors">
-        {skill.status === 'completed' ? 'Review' : skill.status === 'learning' ? 'Continue' : 'Start learning'}
-      </button>
     </div>
   );
 
   return (
-    <div className="py-8 border-t border-gray-200 dark:border-gray-800">
+    <div className="py-8">
       <div className="mb-6">
-        <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Skills to develop</h2>
-        <p className="text-gray-600 dark:text-gray-400 mt-2">Build the foundation your target career expects.</p>
+        <span className="text-xs font-bold uppercase tracking-wider text-indigo-400 block mb-1">Competencies</span>
+        <h3 className="font-extrabold text-xl sm:text-2xl text-white">Skills to Develop</h3>
+        <p className="text-xs text-slate-300 mt-0.5">High-leverage engineering skills mapped to industry standards.</p>
       </div>
 
       <div className="space-y-8">
         {core.length > 0 && (
           <div>
-            <h3 className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-4 border-b border-gray-200 dark:border-gray-800 pb-2">Core Foundation</h3>
+            <h4 className="text-xs font-bold uppercase tracking-wider text-indigo-300 mb-3 border-b border-white/[0.08] pb-2">Core Foundation</h4>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {core.map(s => <SkillItem key={s.id} skill={s} />)}
             </div>
@@ -63,7 +71,7 @@ export function SkillGroup({ skills }: SkillGroupProps) {
 
         {important.length > 0 && (
           <div>
-            <h3 className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-4 border-b border-gray-200 dark:border-gray-800 pb-2">Important Next</h3>
+            <h4 className="text-xs font-bold uppercase tracking-wider text-purple-300 mb-3 border-b border-white/[0.08] pb-2">Important Next</h4>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {important.map(s => <SkillItem key={s.id} skill={s} />)}
             </div>
@@ -72,7 +80,7 @@ export function SkillGroup({ skills }: SkillGroupProps) {
 
         {next.length > 0 && (
           <div>
-            <h3 className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-4 border-b border-gray-200 dark:border-gray-800 pb-2">Advanced / Specialization</h3>
+            <h4 className="text-xs font-bold uppercase tracking-wider text-emerald-300 mb-3 border-b border-white/[0.08] pb-2">Advanced Specialization</h4>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {next.map(s => <SkillItem key={s.id} skill={s} />)}
             </div>
