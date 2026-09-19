@@ -25,7 +25,6 @@ export function Header() {
     { name: 'Career Paths', href: '/career' },
     { name: 'Roadmap', href: '/roadmap' },
     { name: 'Resources', href: '/resources' },
-    { name: 'Classrooms', href: '/classrooms' },
   ];
 
   return (
