@@ -2,134 +2,693 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ========================================
-   StudOS Design Tokens
-   Near-black, charcoal surfaces, indigo accent
-   ======================================== */
+/* =========================================================
+   StudOS — Cosmic Space Design System
+   Deep Midnight Navy · Glowing Gradients · Vibrant 3D Orbs · Glassmorphism
+   ========================================================= */
+
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
 
 @layer base {
-  :root {
-    --bg: #0b0d10;
-    --surface: #131518;
-    --surface-2: #1a1d22;
-    --border: #23262d;
-    --fg: #f4f5f7;
-    --muted: #9ba0a8;
-    --accent: #8b7cf6;
-    --accent-strong: #6d5cf0;
-    --success: #34d399;
-    --warning: #fbbf24;
-    --error: #f87171;
-    --info: #60a5fa;
+
+  /* ─── DARK MODE (default) ─── */
+  :root,
+  .dark {
+    /* Spider-Man Palette: Carbon Noir, Crimson, Cobalt, Platinum */
+    --bg: #06080F;
+    --bg-secondary: #0B0F1A;
+    --bg-nav: rgba(11, 15, 26, 0.92);
+    --surface-glass: rgba(255, 255, 255, 0.04);
+    --surface-glass-hover: rgba(255, 255, 255, 0.07);
+    --border-glass: rgba(255, 255, 255, 0.1);
+    --border-nav: rgba(255, 255, 255, 0.1);
+
+    /* Typography */
+    --fg: #FFFFFF;
+    --fg-muted: #CBD5E1;
+    --fg-subtle: #94A3B8;
+    --fg-nav: #94A3B8;
+    --fg-nav-active: #FFFFFF;
+
+    /* Card / Surface */
+    --card-bg: rgba(255, 255, 255, 0.04);
+    --card-bg-hover: rgba(255, 255, 255, 0.07);
+    --card-border: rgba(255, 255, 255, 0.1);
+
+    /* Theme Accents (Non-Neon, Curated) */
+    --accent-red: #E11D48;
+    --accent-blue: #2563EB;
+    --accent-silver: #E2E8F0;
+
+    color-scheme: dark;
+  }
+
+  /* ─── LIGHT MODE ─── */
+  .light {
+    --bg: #F1F5F9;
+    --bg-secondary: #FFFFFF;
+    --bg-nav: rgba(255, 255, 255, 0.92);
+    --surface-glass: rgba(0, 0, 0, 0.03);
+    --surface-glass-hover: rgba(0, 0, 0, 0.05);
+    --border-glass: rgba(0, 0, 0, 0.1);
+    --border-nav: rgba(0, 0, 0, 0.08);
+
+    /* Typography */
+    --fg: #0F172A;
+    --fg-muted: #334155;
+    --fg-subtle: #64748B;
+    --fg-nav: #475569;
+    --fg-nav-active: #0F172A;
+
+    /* Card / Surface */
+    --card-bg: rgba(255, 255, 255, 0.8);
+    --card-bg-hover: rgba(255, 255, 255, 0.95);
+    --card-border: rgba(0, 0, 0, 0.08);
+
+    /* Accents stay the same */
+    --accent-red: #E11D48;
+    --accent-blue: #2563EB;
+    --accent-silver: #334155;
+
+    color-scheme: light;
   }
 
   html {
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    background: var(--bg);
+    background-color: var(--bg);
+    color: var(--fg);
+    scroll-behavior: smooth;
+    transition: background-color 0.3s ease, color 0.3s ease;
   }
 
   body {
-    background: var(--bg);
+    background-color: var(--bg);
     color: var(--fg);
+    min-height: 100vh;
+    overflow-x: hidden;
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    color: var(--fg);
+    letter-spacing: -0.02em;
+    font-weight: 700;
   }
 
   ::selection {
-    background: color-mix(in srgb, var(--accent) 30%, transparent);
+    background: #E11D48;
+    color: #FFFFFF;
+  }
+
+  * {
+    box-sizing: border-box;
   }
 }
 
 @layer components {
-  /* Surface variants — borders over shadows */
-  .surface {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 0.75rem;
-  }
-
-  .surface-2 {
-    background: var(--surface-2);
-    border: 1px solid var(--border);
-    border-radius: 0.75rem;
-  }
-
   .container-s {
-    max-width: 1200px;
+    max-width: 1240px;
     margin: 0 auto;
-    padding: 0 1.25rem;
+    padding: 0 1.5rem;
   }
 
-  /* Deadline status text colors */
-  .status-plenty {
-    color: var(--success);
-  }
-  .status-approaching {
-    color: var(--warning);
-  }
-  .status-urgent {
-    color: var(--error);
+  /* Cosmic Glass Card */
+  .card-cosmic {
+    background: var(--card-bg);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid var(--card-border);
+    border-radius: 20px;
+    transition: all 0.25s ease-in-out;
   }
 
+  .card-cosmic:hover {
+    background: var(--card-bg-hover);
+    border-color: rgba(225, 29, 72, 0.3);
+    box-shadow: 0 12px 32px -8px rgba(225, 29, 72, 0.15);
+    transform: translateY(-2px);
+  }
+
+  /* Stat Glass Card */
+  .card-stat-glass {
+    background: var(--card-bg);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid var(--card-border);
+    border-radius: 20px;
+    transition: all 0.25s ease;
+  }
+
+  .card-stat-glass:hover {
+    border-color: rgba(225, 29, 72, 0.35);
+    box-shadow: 0 15px 35px -5px rgba(225, 29, 72, 0.2);
+    transform: translateY(-3px);
+  }
+
+  /* Pill Buttons (Screenshot 1 & 3) */
+  .btn-pill-white {
+    background: #FFFFFF;
+    color: #070A1E;
+    font-weight: 700;
+    font-size: 0.875rem;
+    padding: 0.75rem 1.75rem;
+    border-radius: 9999px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 20px rgba(255, 255, 255, 0.25);
+  }
+
+  .btn-pill-white:hover {
+    background: #F1F5F9;
+    transform: scale(1.03);
+    box-shadow: 0 6px 24px rgba(255, 255, 255, 0.35);
+  }
+
+  .btn-pill-glass {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    color: #FFFFFF;
+    font-weight: 600;
+    font-size: 0.875rem;
+    padding: 0.75rem 1.75rem;
+    border-radius: 9999px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    transition: all 0.2s ease;
+  }
+
+  .btn-pill-glass:hover {
+    background: rgba(255, 255, 255, 0.18);
+    border-color: rgba(255, 255, 255, 0.4);
+    transform: scale(1.03);
+  }
+
+  /* Compact Action Buttons */
   .btn-primary {
-    background: var(--accent);
-    color: #fff;
-    border-radius: 0.5rem;
-    padding: 0.5rem 1rem;
-    font-weight: 500;
-    transition: background 0.15s ease;
+    background: #FFFFFF;
+    color: #070A1E;
+    font-weight: 700;
+    font-size: 0.8125rem;
+    padding: 0.5rem 1.25rem;
+    border-radius: 9999px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    transition: all 0.2s ease;
   }
+
   .btn-primary:hover {
-    background: var(--accent-strong);
+    background: #E2E8F0;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 14px rgba(255, 255, 255, 0.2);
   }
 
-  .btn-subtle {
-    border: 1px solid var(--border);
-    border-radius: 0.5rem;
-    padding: 0.5rem 1rem;
-    color: var(--fg);
-    font-weight: 500;
-    transition: background 0.15s ease, border-color 0.15s ease;
-  }
-  .btn-subtle:hover {
-    background: var(--surface-2);
-    border-color: #2f333b;
-  }
-
-  .eyebrow {
-    font-size: 0.75rem;
-    letter-spacing: 0.16em;
-    text-transform: uppercase;
-    color: var(--muted);
-    font-weight: 500;
+  .btn-secondary {
+    background: rgba(255, 255, 255, 0.08);
+    color: #FFFFFF;
+    font-weight: 600;
+    font-size: 0.8125rem;
+    padding: 0.5rem 1.25rem;
+    border-radius: 9999px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    transition: all 0.2s ease;
   }
 
-  .input-search {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 0.75rem;
-    padding: 0.75rem 1rem;
-    color: var(--fg);
+  .btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.3);
+  }
+
+  /* Glowing Golden Section Headings */
+  .heading-gold {
+    color: #FDE047;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    font-family: inherit;
+  }
+
+  /* Cosmic Inputs */
+  .input-cosmic {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 9999px;
+    padding: 0.625rem 1.25rem;
+    color: #FFFFFF;
+    font-size: 0.875rem;
     outline: none;
-    transition: border-color 0.15s ease;
+    transition: all 0.2s ease;
+    backdrop-filter: blur(8px);
   }
-  .input-search:focus {
-    border-color: var(--accent);
+
+  .input-cosmic:focus {
+    border-color: #8B5CF6;
+    background: rgba(255, 255, 255, 0.09);
+    box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.25);
+  }
+
+  .input-cosmic::placeholder {
+    color: #64748B;
+  }
+
+  /* Concentric Glowing Ring (Screenshot 4) */
+  .concentric-ring {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 68px;
+    height: 68px;
+    border-radius: 9999px;
+    border: 1px solid rgba(236, 72, 153, 0.3);
+    background: radial-gradient(circle, rgba(236, 72, 153, 0.2) 0%, rgba(7, 10, 30, 0.6) 80%);
+    box-shadow: 0 0 20px rgba(236, 72, 153, 0.25);
+  }
+
+  .concentric-ring::before {
+    content: '';
+    position: absolute;
+    inset: 6px;
+    border-radius: 9999px;
+    border: 1px dashed rgba(236, 72, 153, 0.5);
+  }
+
+  /* Ambient Cosmic Glow Blobs */
+  .cosmic-glow-pink {
+    position: absolute;
+    width: 450px;
+    height: 450px;
+    border-radius: 9999px;
+    background: radial-gradient(circle, rgba(236, 72, 153, 0.35) 0%, rgba(0, 0, 0, 0) 70%);
+    filter: blur(60px);
+    pointer-events: none;
+  }
+
+  .cosmic-glow-blue {
+    position: absolute;
+    width: 450px;
+    height: 450px;
+    border-radius: 9999px;
+    background: radial-gradient(circle, rgba(59, 130, 246, 0.35) 0%, rgba(0, 0, 0, 0) 70%);
+    filter: blur(60px);
+    pointer-events: none;
+  }
+
+  .cosmic-glow-purple {
+    position: absolute;
+    width: 450px;
+    height: 450px;
+    border-radius: 9999px;
+    background: radial-gradient(circle, rgba(147, 51, 234, 0.35) 0%, rgba(0, 0, 0, 0) 70%);
+    filter: blur(60px);
+    pointer-events: none;
+  }
+
+  /* 3D Perspective & Preservation Utilities */
+  .perspective-1000 {
+    perspective: 1000px;
+  }
+
+  .perspective-1500 {
+    perspective: 1500px;
+  }
+
+  .preserve-3d {
+    transform-style: preserve-3d;
+  }
+
+  .backface-hidden {
+    backface-visibility: hidden;
+  }
+
+  /* 3D Depth Layers */
+  .translate-z-10 {
+    transform: translateZ(10px);
+  }
+
+  .translate-z-20 {
+    transform: translateZ(20px);
+  }
+
+  .translate-z-30 {
+    transform: translateZ(30px);
+  }
+
+  .translate-z-40 {
+    transform: translateZ(40px);
+  }
+
+  /* 3D Holographic Perspective Floor Grid */
+  .hologram-grid-floor {
+    background-size: 40px 40px;
+    background-image:
+      linear-gradient(to right, rgba(139, 92, 246, 0.15) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(6, 182, 212, 0.15) 1px, transparent 1px);
+    transform: perspective(600px) rotateX(65deg) translateY(-10%);
+    transform-origin: center top;
+    mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 0) 80%);
+    -webkit-mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 0) 80%);
+  }
+
+  /* Cyber HUD Corner Reticles */
+  .cyber-hud-card {
+    position: relative;
+  }
+
+  .cyber-hud-card::before,
+  .cyber-hud-card::after {
+    content: '';
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    border-color: rgba(6, 182, 212, 0.6);
+    pointer-events: none;
+    transition: all 0.3s ease;
+  }
+
+  .cyber-hud-card::before {
+    top: 0;
+    left: 0;
+    border-top: 2px solid;
+    border-left: 2px solid;
+    border-top-left-radius: 6px;
+  }
+
+  .cyber-hud-card::after {
+    bottom: 0;
+    right: 0;
+    border-bottom: 2px solid;
+    border-right: 2px solid;
+    border-bottom-right-radius: 6px;
+  }
+
+  .cyber-hud-card:hover::before,
+  .cyber-hud-card:hover::after {
+    border-color: rgba(225, 29, 72, 0.7);
+    width: 14px;
+    height: 14px;
+  }
+
+  /* Laser Scanner Line (Subtle) */
+  .holo-scanner-sweep {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1.5px;
+    background: linear-gradient(90deg, transparent 0%, rgba(225, 29, 72, 0.5) 50%, transparent 100%);
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .group:hover .holo-scanner-sweep {
+    opacity: 1;
+    animation: scanline 2.5s ease-in-out infinite;
+  }
+
+  /* 3D Gyro Rings */
+  .gyro-ring-1 {
+    transform: rotateX(70deg) rotateY(15deg);
+    animation: spin 18s linear infinite;
+  }
+
+  .gyro-ring-2 {
+    transform: rotateX(-45deg) rotateY(45deg);
+    animation: spin 24s linear infinite reverse;
+  }
+
+  .gyro-ring-3 {
+    transform: rotateX(25deg) rotateY(-70deg);
+    animation: spin 30s linear infinite;
+  }
+
+  /* Interactive Task & Submit Animations */
+  .cyber-btn-interactive {
+    position: relative;
+    overflow: hidden;
+    transition: all 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .cyber-btn-interactive:hover {
+    transform: translateY(-2px) scale(1.01);
+    box-shadow: 0 6px 20px -4px rgba(225, 29, 72, 0.3);
+  }
+
+  .cyber-btn-interactive:active {
+    transform: translateY(1px) scale(0.97);
+  }
+
+  /* Laser Progress Bar Animation */
+  .laser-progress-bar {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .laser-progress-bar::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.7), transparent);
+    animation: laser-sweep 1.8s infinite;
   }
 }
 
-/* Custom scrollbar (dark, subtle) */
+@keyframes laser-sweep {
+  0% {
+    left: -100%;
+  }
+
+  100% {
+    left: 100%;
+  }
+}
+
+@keyframes pop-burst {
+  0% {
+    transform: scale(0.85);
+    opacity: 0;
+  }
+
+  60% {
+    transform: scale(1.08);
+    opacity: 1;
+  }
+
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes ring-burst {
+  0% {
+    transform: scale(0.8);
+    opacity: 1;
+  }
+
+  100% {
+    transform: scale(1.6);
+    opacity: 0;
+  }
+}
+
+.animate-pop-burst {
+  animation: pop-burst 0.45s cubic-bezier(0.175, 0.885, 0.32, 1.275) both;
+}
+
+.animate-ring-burst {
+  animation: ring-burst 0.7s ease-out forwards;
+}
+
+/* Scrollbar */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
 }
+
 ::-webkit-scrollbar-track {
   background: var(--bg);
 }
+
 ::-webkit-scrollbar-thumb {
-  background: #2f333b;
-  border-radius: 4px;
+  background: var(--surface-glass-hover);
+  border-radius: 99px;
+  border: 2px solid var(--bg);
 }
+
 ::-webkit-scrollbar-thumb:hover {
-  background: #3a4048;
+  background: var(--fg-subtle);
 }
+
+/* =========================================================
+   LIGHT MODE — Global Tailwind Class Overrides
+   Fixes all hardcoded dark-only classes used across every
+   page component: text-white, text-slate-*, bg-white/*,
+   border-white/*, bg-[#0B...] dark hex backgrounds, inputs.
+   ========================================================= */
+
+/* ── Text Overrides ── */
+.light .text-white {
+  color: #0F172A !important;
+}
+.light .text-slate-100,
+.light .text-slate-200 {
+  color: #1E293B !important;
+}
+.light .text-slate-300 {
+  color: #334155 !important;
+}
+.light .text-slate-400 {
+  color: #475569 !important;
+}
+.light .text-slate-500 {
+  color: #64748B !important;
+}
+
+/* ── Section / Container Backgrounds ── */
+.light .bg-transparent {
+  background-color: transparent !important;
+}
+
+/* Dark hex bg overrides — nav/card panels used in career, ideas, opportunities */
+.light [class*="bg-\[#0"],
+.light [class*="bg-\[#06"],
+.light [class*="bg-\[#07"],
+.light [class*="bg-\[#0A"],
+.light [class*="bg-\[#0B"],
+.light [class*="bg-\[#0F"] {
+  background-color: rgba(255, 255, 255, 0.85) !important;
+  border-color: rgba(0, 0, 0, 0.08) !important;
+}
+
+/* Glass surface overrides */
+.light .bg-white\/\[0\.02\],
+.light .bg-white\/\[0\.03\],
+.light .bg-white\/\[0\.04\],
+.light .bg-white\/\[0\.05\],
+.light .bg-white\/\[0\.06\],
+.light .bg-white\/\[0\.07\],
+.light .bg-white\/\[0\.08\] {
+  background-color: rgba(0, 0, 0, 0.04) !important;
+}
+.light .bg-white\/5 {
+  background-color: rgba(0, 0, 0, 0.04) !important;
+}
+.light .bg-white\/10 {
+  background-color: rgba(0, 0, 0, 0.06) !important;
+}
+.light .hover\:bg-white\/10:hover {
+  background-color: rgba(0, 0, 0, 0.08) !important;
+}
+
+/* ── Border Overrides ── */
+.light .border-white\/5 {
+  border-color: rgba(0, 0, 0, 0.06) !important;
+}
+.light .border-white\/10 {
+  border-color: rgba(0, 0, 0, 0.1) !important;
+}
+.light .border-white\/\[0\.1\],
+.light .border-white\/\[0\.15\] {
+  border-color: rgba(0, 0, 0, 0.1) !important;
+}
+.light .border-white\/20,
+.light .border-white\/25,
+.light .border-white\/15 {
+  border-color: rgba(0, 0, 0, 0.15) !important;
+}
+
+/* ── Inputs ── */
+.light input[class*="bg-white"],
+.light input.bg-white\/5,
+.light input[class*="text-white"],
+.light input[class*="border-white"] {
+  background-color: rgba(0, 0, 0, 0.04) !important;
+  color: #0F172A !important;
+  border-color: rgba(0, 0, 0, 0.12) !important;
+}
+.light input::placeholder {
+  color: #94A3B8 !important;
+}
+
+/* ── Skill / Tag Pills ── */
+.light .text-slate-300.border-white\/10,
+.light span[class*="text-slate"][class*="border-white"] {
+  background-color: rgba(0, 0, 0, 0.05) !important;
+  border-color: rgba(0, 0, 0, 0.1) !important;
+  color: #334155 !important;
+}
+
+/* ── Card Bodies (career page cards, ideas cards, etc.) ── */
+.light .rounded-3xl[class*="bg-\[#"],
+.light .rounded-2xl[class*="bg-\[#"] {
+  background-color: rgba(255, 255, 255, 0.9) !important;
+  border-color: rgba(0, 0, 0, 0.08) !important;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06) !important;
+}
+
+/* ── Dividers ── */
+.light .border-t.border-white\/5,
+.light .border-t.border-white\/10 {
+  border-top-color: rgba(0, 0, 0, 0.08) !important;
+}
+.light .border-b.border-white\/5,
+.light .border-b.border-white\/10 {
+  border-bottom-color: rgba(0, 0, 0, 0.08) !important;
+}
+
+/* ── Loading Skeletons ── */
+.light .animate-pulse.bg-white\/\[0\.02\],
+.light .animate-pulse[class*="border-white"] {
+  background-color: rgba(0, 0, 0, 0.06) !important;
+  border-color: rgba(0, 0, 0, 0.08) !important;
+}
+
+/* ── Hover Text Overrides (nav links, action buttons) ── */
+.light .hover\:text-white:hover {
+  color: #0F172A !important;
+}
+
+/* ── Sidebar Filter Panel ── */
+.light aside [class*="bg-\[#"] {
+  background-color: rgba(255, 255, 255, 0.9) !important;
+  border-color: rgba(0, 0, 0, 0.1) !important;
+}
+
+/* ── HUD Telemetry Micro-Tag ── */
+.light .font-mono.text-slate-400 {
+  color: #64748B !important;
+}
+.light .font-mono.text-slate-500 {
+  color: #94A3B8 !important;
+}
+
+/* ── Concentric Ring (timeline year label) ── */
+.light .concentric-ring {
+  background: radial-gradient(circle, rgba(225, 29, 72, 0.15) 0%, rgba(255, 255, 255, 0.6) 80%);
+  border-color: rgba(225, 29, 72, 0.3);
+}
+
+/* Project showcase card gradient overlays remain dark (they overlay images) */
+/* No override needed for .from-slate-950 inside project cards since they overlay photos */

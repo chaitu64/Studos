@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { SlidersHorizontal, RotateCcw } from 'lucide-react';
+import { SlidersHorizontal, RotateCcw, Sparkles } from 'lucide-react';
 import type { Opportunity, OpportunityFilters, SortKey } from '../../types/opportunity';
 import { api } from '../../lib/api/api-client';
 import { OpportunitySearch } from '../../components/opportunities/opportunity-search';
@@ -14,6 +14,8 @@ import { FeaturedOpportunity } from '../../components/opportunities/featured-opp
 import { OpportunityListItem } from '../../components/opportunities/opportunity-list-item';
 import { OpportunityEmptyState } from '../../components/opportunities/opportunity-empty-state';
 import { OpportunitySkeleton } from '../../components/opportunities/opportunity-skeleton';
+
+import { HeroNetwork } from '../../components/opportunities/hero-network';
 
 type LoadState = 'loading' | 'ready' | 'error';
 
@@ -98,139 +100,123 @@ export default function OpportunitiesPage() {
   const canLoadMore = items.length < total;
 
   return (
-    <div className="container-s py-8">
-      {/* Page Header */}
-      <div className="mb-6">
-        <h1 className="text-3xl md:text-4xl font-semibold tracking-tight">
-          Find your next opportunity.
-        </h1>
-        <p className="mt-2 max-w-2xl text-[15px] text-mut">
-          Explore hackathons, internships, competitions, fellowships and research opportunities for students.
-        </p>
+    <div className="min-h-screen bg-transparent text-white pb-24 relative overflow-hidden selection:bg-purple-600 selection:text-white">
+
+      {/* ── TOP HERO NETWORK: 3-PANEL CONNECTED COMPOSITION (EXACT REFERENCE MATCH) ── */}
+      <div className="pt-6 pb-2">
+        <HeroNetwork onSelectCategory={(cat) => setFilter('category', cat)} />
       </div>
 
-      {/* Large Search Bar */}
-      <div className="mb-4">
-        <OpportunitySearch
-          value={filters.q ?? ''}
-          onChange={(v) => setFilter('q', v)}
-        />
-      </div>
+      <div className="container-s py-4 relative z-10">
 
-      {/* Category Tabs */}
-      <div className="mb-6">
-        <OpportunityCategoryTabs
-          value={filters.category ?? 'All'}
-          onChange={(v) => setFilter('category', v)}
-        />
-      </div>
+        {/* =========================================================================
+            EXPLORE OPPORTUNITIES: DISCOVERY SECTION HEADER & CONTROLS (SCREENSHOT MATCH)
+            ========================================================================= */}
+        <div id="explore-opportunities" className="scroll-mt-24 mb-6">
 
-      {/* Featured opportunity */}
-      {page === 1 && state === 'ready' && featured && (
-        <div className="mb-6">
-          <FeaturedOpportunity opportunity={featured} />
-        </div>
-      )}
-
-      <div className="mt-2 flex items-start gap-6">
-        {/* Sidebar (desktop) */}
-        <aside className="sticky top-20 hidden w-72 shrink-0 lg:block">
-          <FiltersPanel
-            filters={filters}
-            onFilter={setFilter}
-            onClear={clearFilters}
-          />
-        </aside>
-
-        {/* Results */}
-        <div className="min-w-0 flex-1">
-          {/* Results header */}
-          <div className="mb-4 flex flex-wrap items-center justify-between gap-3 border-b border-borderline pb-4">
+          {/* Section Title & Right Tagline */}
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 mb-6">
             <div>
-              <p className="text-sm text-mut">
-                <span className="font-semibold text-fg">{total}</span> opportunity
-                {total === 1 ? '' : 's'}
+              <span className="text-[10px] font-mono tracking-widest text-slate-500 uppercase block mb-1">
+                STUDOS / OPPORTUNITIES
+              </span>
+              <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-white">
+                Explore Opportunities
+              </h2>
+              <p className="text-xs sm:text-sm text-slate-400 mt-1">
+                Find the right opportunities to learn, build and grow.
               </p>
-              <ActiveFilters
-                filters={filters}
-                onRemove={removeFilter}
-                onClear={clearFilters}
-              />
             </div>
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => setDrawerOpen(true)}
-                className="inline-flex items-center gap-2 rounded-lg border border-borderline bg-surface px-3 py-2 text-sm text-fg transition-colors hover:border-accent/40 lg:hidden"
-              >
-                <SlidersHorizontal size={15} className="text-mut" />
-                Filters
-                {activeCount > 0 && (
-                  <span className="flex h-4 w-4 items-center justify-center rounded-full bg-accent text-[10px] text-white">
-                    {activeCount}
-                  </span>
-                )}
-              </button>
-              <OpportunitySort value={sort} onChange={setSort} />
+            <div className="text-right hidden sm:block">
+              <span className="text-xs text-slate-400 font-medium">
+                Opportunities for a brighter tomorrow.
+              </span>
+              <div className="w-12 h-0.5 bg-pink-500 rounded-full mt-1.5 ml-auto" />
             </div>
           </div>
 
-          {/* Results body */}
-          {state === 'loading' && <OpportunitySkeleton rows={6} />}
-
-          {state === 'error' && (
-            <div className="flex flex-col items-center justify-center gap-3 rounded-xl border border-borderline bg-surface px-6 py-16 text-center">
-              <h3 className="text-lg font-semibold text-fg">Couldn&apos;t load opportunities.</h3>
-              <p className="max-w-sm text-sm text-mut">
-                Please try again in a moment.
-              </p>
-              <button onClick={() => setPage((p) => p)} className="btn-primary mt-2 text-sm">
-                Try again
-              </button>
+          {/* Search & Sort Controls Bar */}
+          <div id="browse-results" className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 mb-6">
+            <div className="flex-1">
+              <OpportunitySearch
+                value={filters.q ?? ''}
+                onChange={(v) => setFilter('q', v)}
+              />
             </div>
-          )}
-
-          {state === 'ready' && items.length === 0 && (
-            <OpportunityEmptyState onClear={clearFilters} />
-          )}
-
-          {state === 'ready' && items.length > 0 && (
-            <div className="space-y-3">
-              {items.filter((o) => o.id !== featured?.id).map((o) => (
-                <OpportunityListItem key={o.id} opportunity={o} />
-              ))}
-
-              {canLoadMore && (
-                <div className="pt-2 text-center">
-                  <button
-                    onClick={() => setPage((p) => p + 1)}
-                    className="inline-flex items-center gap-2 rounded-lg border border-borderline bg-surface px-5 py-2.5 text-sm font-medium text-fg transition-colors hover:border-accent/40 hover:text-accent"
-                  >
-                    Load more
-                    <span className="text-xs text-mut">
-                      ({total - items.length} remaining)
-                    </span>
-                  </button>
-                </div>
-              )}
-            </div>
-          )}
+            <OpportunitySort value={sort} onChange={setSort} />
+          </div>
         </div>
+
+        <div className="mt-2 flex items-start gap-8">
+          {/* Left Sidebar Filters */}
+          <aside className="sticky top-24 hidden w-64 shrink-0 lg:block">
+            <div className="rounded-2xl border border-white/10 bg-[#0B0820]/80 p-5 backdrop-blur-md">
+              <FiltersPanel
+                filters={filters}
+                onFilter={setFilter}
+                onClear={clearFilters}
+              />
+            </div>
+          </aside>
+
+          {/* Results List */}
+          <div className="min-w-0 flex-1">
+
+            {/* Results body */}
+            {state === 'loading' && <OpportunitySkeleton rows={6} />}
+
+            {state === 'error' && (
+              <div className="card-cosmic p-10 text-center border-rose-500/30 bg-rose-500/10">
+                <h3 className="text-sm font-bold text-rose-300">Couldn&apos;t load opportunities.</h3>
+                <p className="mt-1 text-xs text-rose-400">
+                  Please try again in a moment.
+                </p>
+                <button onClick={() => setPage((p) => p)} className="btn-pill-white mt-4 text-xs">
+                  Try again
+                </button>
+              </div>
+            )}
+
+            {state === 'ready' && items.length === 0 && (
+              <OpportunityEmptyState onClear={clearFilters} />
+            )}
+
+            {state === 'ready' && items.length > 0 && (
+              <div className="space-y-3">
+                {items.filter((o) => o.id !== featured?.id).map((o) => (
+                  <OpportunityListItem key={o.id} opportunity={o} />
+                ))}
+
+                {canLoadMore && (
+                  <div className="pt-6 text-center">
+                    <button
+                      onClick={() => setPage((p) => p + 1)}
+                      className="btn-pill-glass text-xs px-6 py-2.5"
+                    >
+                      Load more ({total - items.length} remaining)
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Mobile filter drawer */}
+        <OpportunityFilterDrawer
+          open={drawerOpen}
+          onClose={() => setDrawerOpen(false)}
+          filters={filters}
+          onFilter={setFilter}
+          onClear={clearFilters}
+        />
+
+        {/* Demo notice */}
+        <p className="mt-10 flex items-center gap-1.5 text-xs text-slate-500">
+          <RotateCcw size={12} aria-hidden />
+          Verified listings curated for student career advancement.
+        </p>
       </div>
-
-      {/* Mobile filter drawer */}
-      <OpportunityFilterDrawer
-        open={drawerOpen}
-        onClose={() => setDrawerOpen(false)}
-        filters={filters}
-        onFilter={setFilter}
-        onClear={clearFilters}
-      />
-
-      {/* Demo notice */}
-      <p className="mt-8 flex items-center gap-1.5 text-xs text-mut">
-        <RotateCcw size={12} aria-hidden />
-        Demo data — these are fictional listings for prototype testing.
-      </p>
     </div>
   );
 }

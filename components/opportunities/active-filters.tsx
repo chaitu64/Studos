@@ -15,7 +15,6 @@ const LABELS: Record<string, string> = {
 };
 
 function getDisplayValue(key: string, value: string): string {
-  // For multi-select filters, show each value as separate tag
   const multiKeys = ['category', 'year', 'branch', 'mode', 'location', 'skill'];
   if (multiKeys.includes(key) && value.includes(',')) {
     return value.split(',').join(' · ');
@@ -46,21 +45,21 @@ export function ActiveFilters({
   if (entries.length === 0) return null;
 
   return (
-    <div className="flex flex-wrap items-center gap-2 mt-2">
+    <div className="flex flex-wrap items-center gap-1.5 mt-2">
       {entries.map(([key, value]) => (
         <button
           key={key}
           onClick={() => onRemove(key)}
-          className="inline-flex items-center gap-1.5 rounded-full border border-accent/40 bg-accent/10 px-2.5 py-1 text-xs font-medium text-accent transition-colors hover:bg-accent/20"
+          className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-2.5 py-0.5 text-xs font-medium text-slate-300 hover:bg-white/10 hover:text-white transition-colors"
         >
-          {LABELS[key] ?? key}: {getDisplayValue(key, value)}
+          <span>{LABELS[key] ?? key}: {getDisplayValue(key, value)}</span>
           <X size={12} aria-hidden />
           <span className="sr-only">Remove {LABELS[key] ?? key} filter {value}</span>
         </button>
       ))}
       <button
         onClick={onClear}
-        className="text-xs text-mut underline-offset-2 hover:text-accent hover:underline"
+        className="text-xs text-slate-400 hover:text-white ml-1 font-medium transition-colors cursor-pointer"
       >
         Clear all
       </button>

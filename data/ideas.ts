@@ -119,6 +119,28 @@ export const ideas: Idea[] = [
     createdAt: daysAgo(0),
   },
   {
+    id: 'campus-navigation-assistant',
+    title: 'Campus Navigation Assistant',
+    description:
+      'Turn-by-turn indoor & campus AR navigation connecting students to lecture halls, lab blocks, and real-time facility availability.',
+    creator: 'Aditya Kaul',
+    branch: 'CSE',
+    year: '3',
+    technologies: ['React Native', 'ARKit', 'Mapbox', 'Mobile'],
+    teamSize: 2,
+    teamTarget: 4,
+    teamMembers: [
+      { name: 'Aditya Kaul', role: 'Lead · Mobile' },
+      { name: 'Nikita Singh', role: '3D Mapping' },
+    ],
+    lookingFor: ['Mobile Developer', 'UI/UX Designer'],
+    supportNeeded: ['Team', 'Mentorship'],
+    status: 'Looking for team',
+    featured: true,
+    visual: 'campus',
+    createdAt: daysAgo(2),
+  },
+  {
     id: 'project-titanium',
     title: 'Project Titanium',
     description:

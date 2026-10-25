@@ -14,7 +14,7 @@ export async function GET(
     }
     return NextResponse.json(item);
   } catch (error) {
-    console.error(`GET /api/ideas/${(await params).id} failed`, error);
+    console.error('GET /api/ideas/[id] failed', error);
     return NextResponse.json(
       { error: 'Something went wrong. We could not load this idea right now.' },
       { status: 500 }

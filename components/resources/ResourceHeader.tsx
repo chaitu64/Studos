@@ -1,40 +1,97 @@
 import React from 'react';
+import { Search, Sparkles, BookOpen, Layers, X } from 'lucide-react';
 
-export function ResourceHeader() {
+interface ResourceHeaderProps {
+  searchQuery?: string;
+  onSearchChange?: (q: string) => void;
+  onTagClick?: (tag: string) => void;
+  selectedTag?: string;
+}
+
+export function ResourceHeader({
+  searchQuery = '',
+  onSearchChange,
+  onTagClick,
+  selectedTag = ''
+}: ResourceHeaderProps) {
+  const popularTags = [
+    'All Material',
+    'Previous Papers',
+    'Handwritten Notes',
+    'Lab Manuals',
+    'Important Viva Qs',
+    'Syllabus'
+  ];
+
   return (
-    <div className="py-12 border-b border-gray-200/50 dark:border-gray-800/50 bg-white/50 dark:bg-gray-950/50">
-      <div className="container mx-auto max-w-7xl px-4 md:px-6">
+    <div className="relative border-b border-white/10 bg-gradient-to-b from-[#0e122b]/80 via-[#0a0d20]/90 to-[#070A1E] backdrop-blur-2xl py-12 md:py-16 overflow-hidden">
+      {/* Background ambient cosmic glow */}
+      <div className="absolute -top-24 left-1/4 w-[500px] h-[350px] bg-purple-600/15 rounded-full blur-[120px] pointer-events-none" />
+      <div className="absolute top-1/2 right-1/4 w-[450px] h-[300px] bg-cyan-500/10 rounded-full blur-[110px] pointer-events-none" />
+
+      <div className="container-s relative z-10">
         <div className="max-w-3xl">
-          <p className="text-sm font-semibold tracking-wider text-indigo-600 dark:text-indigo-400 uppercase mb-3">
-            Academic Resources
-          </p>
-          <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight text-gray-900 dark:text-white mb-6">
-            Everything you need for your semester.
+          {/* Cosmic tag badge */}
+          <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-purple-500/30 bg-purple-500/10 px-3.5 py-1.5 text-xs font-semibold text-purple-300 shadow-[0_0_15px_rgba(168,85,247,0.15)]">
+            <Sparkles size={13} className="text-purple-400 animate-pulse" />
+            <span>ACADEMIC RESOURCE VAULT • 100% VERIFIED</span>
+          </div>
+
+          <h1 className="mb-4 text-3xl font-black tracking-tight text-white md:text-5xl leading-tight">
+            Semester Success,{' '}
+            <span className="bg-clip-text text-transparent bg-gradient-to-r from-purple-400 via-pink-400 to-cyan-400">
+              Simplified.
+            </span>
           </h1>
-          <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl leading-relaxed mb-8">
-            Find notes, previous papers, syllabi, lab material and other academic resources in one place.
+
+          <p className="mb-8 max-w-2xl text-sm md:text-base leading-relaxed text-slate-300">
+            Instant access to professor-verified lecture notes, solved previous year question papers, syllabus breakdowns, and lab manuals organized by branch & semester.
           </p>
 
-          <div className="relative max-w-2xl">
-             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <svg className="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd" />
-              </svg>
+          {/* Interactive Search Bar */}
+          <div className="relative max-w-2xl group">
+            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+              <Search size={18} className="text-slate-400 group-focus-within:text-purple-400 transition-colors" />
             </div>
             <input
               type="text"
-              placeholder="Search subjects, notes, question papers..."
-              className="block w-full pl-10 pr-3 py-4 border border-gray-300 dark:border-gray-700 rounded-xl leading-5 bg-white dark:bg-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm text-gray-900 dark:text-white"
+              value={searchQuery}
+              onChange={(e) => onSearchChange?.(e.target.value)}
+              placeholder="Search subjects, topics, notes (e.g. Data Structures, OS, Calculus)..."
+              className="w-full pl-11 pr-10 py-3.5 text-sm rounded-2xl bg-white/[0.05] border border-white/10 text-white placeholder-slate-400 focus:outline-none focus:border-purple-500/50 focus:ring-2 focus:ring-purple-500/20 backdrop-blur-xl transition-all shadow-inner"
             />
+            {searchQuery && (
+              <button
+                type="button"
+                onClick={() => onSearchChange?.('')}
+                className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-white transition-colors"
+              >
+                <X size={16} />
+              </button>
+            )}
           </div>
 
-          <div className="mt-6 flex flex-wrap gap-2">
-            <span className="text-sm text-gray-500 dark:text-gray-400 py-1.5 mr-2">Quick Access:</span>
-            {['My Semester', 'Previous Papers', 'Syllabus', 'Notes', 'Lab Manuals', 'Important Questions'].map(tag => (
-                <button key={tag} className="px-3 py-1.5 text-xs font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
-                    {tag}
+          {/* Popular Tag Filters */}
+          <div className="mt-5 flex flex-wrap items-center gap-2">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-purple-400 mr-1 flex items-center gap-1">
+              <BookOpen size={12} /> Filter:
+            </span>
+            {popularTags.map((tag) => {
+              const isActive = (selectedTag === tag) || (selectedTag === '' && tag === 'All Material');
+              return (
+                <button
+                  key={tag}
+                  type="button"
+                  onClick={() => onTagClick?.(tag === 'All Material' ? '' : tag)}
+                  className={`rounded-full px-3 py-1 text-xs font-semibold transition-all ${isActive
+                      ? 'bg-purple-600 text-white shadow-[0_0_12px_rgba(168,85,247,0.35)] border border-purple-400/40'
+                      : 'bg-white/[0.03] border border-white/10 text-slate-300 hover:border-purple-500/30 hover:text-white hover:bg-white/[0.06]'
+                    }`}
+                >
+                  {tag}
                 </button>
-            ))}
+              );
+            })}
           </div>
         </div>
       </div>

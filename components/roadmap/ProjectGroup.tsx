@@ -1,5 +1,10 @@
+'use client';
+
 import React from 'react';
+import Link from 'next/link';
 import { ProjectRecommendation } from '@/types/roadmap';
+import { GitBranch, ArrowRight } from 'lucide-react';
+import { Card3D } from '@/components/ui/Card3D';
 
 interface ProjectGroupProps {
   projects: ProjectRecommendation[];
@@ -7,56 +12,56 @@ interface ProjectGroupProps {
 
 export function ProjectGroup({ projects }: ProjectGroupProps) {
   return (
-    <div className="py-8 border-t border-gray-200 dark:border-gray-800">
-      <div className="mb-6 flex flex-col md:flex-row md:items-end justify-between gap-4">
+    <div className="py-8 border-t border-white/[0.08]">
+      <div className="mb-6 flex flex-col md:flex-row md:items-end justify-between gap-3">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Projects worth building</h2>
-          <p className="text-gray-600 dark:text-gray-400 mt-2">Projects that demonstrate the skills employers look for.</p>
+          <span className="text-xs font-bold uppercase tracking-wider text-indigo-400 block mb-1">Portfolio Building</span>
+          <h3 className="font-extrabold text-xl sm:text-2xl text-white">Projects Worth Building</h3>
+          <p className="text-xs text-slate-300 mt-0.5">Projects that demonstrate practical problem solving to recruiters.</p>
         </div>
-        <a href="/ideas" className="text-sm font-medium text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300">
-          Explore project ideas →
-        </a>
+        <Link href="/ideas" className="btn-subtle text-xs px-4 py-2 self-start md:self-auto flex items-center gap-1.5">
+          <span>Explore Idea Hub</span>
+          <ArrowRight size={13} />
+        </Link>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {projects.map(project => (
-          <div key={project.id} className="flex flex-col border border-gray-200 dark:border-gray-800 rounded-xl overflow-hidden bg-white dark:bg-gray-950">
-            <div className="p-5 border-b border-gray-100 dark:border-gray-900">
-              <span className={`text-xs font-bold uppercase tracking-wider mb-2 inline-block
-                ${project.difficulty === 'beginner' ? 'text-green-600 dark:text-green-400' :
-                  project.difficulty === 'intermediate' ? 'text-blue-600 dark:text-blue-400' :
-                  'text-purple-600 dark:text-purple-400'}
-              `}>
-                {project.difficulty}
-              </span>
-              <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">{project.title}</h3>
-              <div className="flex flex-wrap gap-1.5 mb-4">
-                {project.skills.map(skill => (
-                  <span key={skill} className="px-2 py-1 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 text-xs rounded-md">
-                    {skill}
-                  </span>
-                ))}
-              </div>
-            </div>
-
-            <div className="p-5 flex-1 flex flex-col justify-between bg-gray-50/50 dark:bg-gray-900/20">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+        {projects.map((project) => (
+          <Card3D key={project.id} maxTilt={6} scale={1.015} glare={true} className="cyber-hud-card h-full">
+            <div className="holo-scanner-sweep" />
+            <article className="glass-card p-6 rounded-2xl border border-white/[0.08] hover:border-indigo-500/40 flex flex-col justify-between group h-full preserve-3d">
               <div>
-                <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Why build it</p>
-                <p className="text-sm text-gray-700 dark:text-gray-300 mb-4">{project.whyBuildIt}</p>
+                <div className="mb-3 flex items-center justify-between gap-2">
+                  <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-indigo-500/10 text-indigo-300 border border-indigo-500/20 translate-z-20">
+                    {project.difficulty}
+                  </span>
+                  <GitBranch size={16} className="text-slate-400" />
+                </div>
+
+                <h4 className="font-bold text-base text-white group-hover:text-indigo-300 transition-colors mb-2">
+                  {project.title}
+                </h4>
+
+                <div className="flex flex-wrap gap-1.5 mb-4">
+                  {project.skills.slice(0, 4).map((skill) => (
+                    <span key={skill} className="rounded-md bg-white/[0.04] border border-white/[0.08] px-2 py-0.5 text-[10px] font-medium text-slate-300">
+                      {skill}
+                    </span>
+                  ))}
+                </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4 text-sm mt-auto">
-                <div>
-                  <p className="text-xs text-gray-500 mb-1">Time</p>
-                  <p className="font-medium text-gray-900 dark:text-white">{project.estimatedTime}</p>
-                </div>
-                <div>
-                  <p className="text-xs text-gray-500 mb-1">Relevance</p>
-                  <p className="font-medium text-gray-900 dark:text-white">{project.careerRelevance}</p>
+              <div className="mt-auto border-t border-white/[0.06] pt-4 translate-z-20">
+                <p className="text-[10px] font-bold uppercase tracking-wider text-indigo-400 mb-1">Impact & Purpose</p>
+                <p className="text-xs text-slate-300 leading-relaxed line-clamp-2">{project.whyBuildIt}</p>
+
+                <div className="mt-3 flex items-center justify-between gap-2 pt-2 border-t border-white/[0.06] text-xs text-slate-400">
+                  <span>{project.estimatedTime}</span>
+                  <span className="text-indigo-300 font-semibold text-[11px]">{project.careerRelevance}</span>
                 </div>
               </div>
-            </div>
-          </div>
+            </article>
+          </Card3D>
         ))}
       </div>
     </div>

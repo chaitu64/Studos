@@ -19,7 +19,8 @@ export async function POST(request: Request) {
     if (!recommendation) return NextResponse.json({ error: 'Tell us a little more about your interests.' }, { status: 404 });
     return NextResponse.json(recommendation);
   } catch (error) {
-    if (error instanceof z.ZodError) return NextResponse.json({ error: 'Complete the required profile fields.' }, { status: 400 });
-    return NextResponse.json({ error: 'We could not build your path right now.' }, { status: 500 });
+    console.error('API /api/career/recommend error:', error);
+    if (error instanceof z.ZodError) return NextResponse.json({ error: error.issues.map(i => i.message).join(', ') || 'Complete the required profile fields.' }, { status: 400 });
+    return NextResponse.json({ error: error instanceof Error ? error.message : 'We could not build your path right now.' }, { status: 500 });
   }
 }

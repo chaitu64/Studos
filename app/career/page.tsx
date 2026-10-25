@@ -1,26 +1,45 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import Link from 'next/link';
 import {
   ArrowRight,
   BookOpen,
-  Check,
-  ChevronRight,
-  Clock3,
+  CheckCircle2,
   Compass,
   ExternalLink,
-  GitBranch,
-  Layers3,
-  Lock,
-  Map,
+  Layers,
   Sparkles,
   Target,
   Trophy,
+  TrendingUp,
+  Cpu,
+  Globe,
+  Shield,
+  Palette,
+  Cloud,
+  ChevronRight,
+  GraduationCap,
+  Briefcase,
+  Code2,
+  Rocket,
+  Search,
+  Check,
+  BarChart3,
+  Clock,
+  Zap,
+  X,
+  SlidersHorizontal,
+  Award,
+  Smartphone,
+  Server
 } from 'lucide-react';
-import type { Career, CareerRecommendation, LearningResource } from '../../types/career';
+import type { Career, CareerRecommendation, LearningResource, CareerRoadmapPhase } from '../../types/career';
+import { Card3D } from '../../components/ui/Card3D';
+import { HoloGyro } from '../../components/3d/HoloGyro';
 import {
   BRANCH_OPTIONS,
   CAREER_CATEGORIES,
@@ -52,71 +71,222 @@ const careerSchema = z.object({
   careerInterests: z.array(z.string()).min(1, 'Choose a career direction.'),
 });
 
-const fallbackProfile: CareerForm = {
-  year: '2',
+const defaultProfile: CareerForm = {
+  year: '3',
   branch: 'AIML',
-  interests: ['AI / ML'],
-  currentSkills: ['Python'],
-  experience: 'Beginner',
-  goal: 'Internship',
+  interests: ['AI / ML', 'Data'],
+  currentSkills: ['Python', 'Machine Learning'],
+  experience: 'Intermediate',
+  goal: 'Placement',
   careerInterests: ['AI / ML Engineer'],
 };
 
-const navItems = [
-  ['overview', 'Overview'],
-  ['explore', 'Explore careers'],
-  ['path', 'My path'],
-  ['learning', 'Learning'],
-  ['projects', 'Projects'],
-  ['opportunities', 'Opportunities'],
-] as const;
+// Year Context Descriptions for Element Placement Theory
+const YEAR_METADATA: Record<string, { subtitle: string; tag: string }> = {
+  '1': { subtitle: 'Core Foundations & Programming Basics', tag: 'Foundational' },
+  '2': { subtitle: 'Data Structures, Algorithms & Dev Stacks', tag: 'Skill Sprint' },
+  '3': { subtitle: 'System Specialization & Tech Internships', tag: 'Prime Pivot' },
+  '4': { subtitle: 'Tier-1 Placements, Capstones & Off-Campus', tag: 'Target Lock' },
+};
+
+// Goal Metadata
+const GOAL_METADATA: Record<string, { label: string; desc: string; icon: any; color: string }> = {
+  'Placement': {
+    label: 'Tier-1 Placement',
+    desc: 'Top-tier tech MNCs & high-growth unicorns',
+    icon: Briefcase,
+    color: 'text-purple-400 bg-purple-500/10 border-purple-500/30',
+  },
+  'Internship': {
+    label: 'High-Stipend Internship',
+    desc: 'Summer & winter industrial tech internships',
+    icon: Rocket,
+    color: 'text-cyan-400 bg-cyan-500/10 border-cyan-500/30',
+  },
+  'Hackathons': {
+    label: 'Hackathon Domination',
+    desc: 'National competitions & prize-winning builds',
+    icon: Trophy,
+    color: 'text-amber-400 bg-amber-500/10 border-amber-500/30',
+  },
+  'Research': {
+    label: 'Research & MS Prep',
+    desc: 'Paper publications & global fellowships',
+    icon: BookOpen,
+    color: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/30',
+  },
+  'Startup': {
+    label: 'Startup & Incubation',
+    desc: 'Build MVP, venture capital & incubator pitch',
+    icon: Zap,
+    color: 'text-pink-400 bg-pink-500/10 border-pink-500/30',
+  },
+};
+
+// Domain aesthetics and metadata helper
+function getDomainMeta(category: string) {
+  switch (category) {
+    case 'ai-ml':
+    case 'AI / Data':
+      return {
+        icon: <Cpu size={16} className="text-purple-400" />,
+        border: 'border-purple-500/40 hover:border-purple-400',
+        glow: 'shadow-[0_0_25px_rgba(168,85,247,0.15)]',
+        badgeBg: 'bg-purple-500/15 text-purple-300 border-purple-500/30',
+        accentColor: '#A855F7',
+        salaryTier: '₹14 - 32 LPA',
+      };
+    case 'software':
+      return {
+        icon: <Globe size={16} className="text-cyan-400" />,
+        border: 'border-cyan-500/40 hover:border-cyan-400',
+        glow: 'shadow-[0_0_25px_rgba(6,182,212,0.15)]',
+        badgeBg: 'bg-cyan-500/15 text-cyan-300 border-cyan-500/30',
+        accentColor: '#06B6D4',
+        salaryTier: '₹12 - 28 LPA',
+      };
+    case 'security':
+      return {
+        icon: <Shield size={16} className="text-emerald-400" />,
+        border: 'border-emerald-500/40 hover:border-emerald-400',
+        glow: 'shadow-[0_0_25px_rgba(16,185,129,0.15)]',
+        badgeBg: 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30',
+        accentColor: '#10B981',
+        salaryTier: '₹12 - 26 LPA',
+      };
+    case 'design':
+      return {
+        icon: <Palette size={16} className="text-pink-400" />,
+        border: 'border-pink-500/40 hover:border-pink-400',
+        glow: 'shadow-[0_0_25px_rgba(236,72,153,0.15)]',
+        badgeBg: 'bg-pink-500/15 text-pink-300 border-pink-500/30',
+        accentColor: '#EC4899',
+        salaryTier: '₹10 - 24 LPA',
+      };
+    case 'cloud':
+    case 'devops':
+      return {
+        icon: <Cloud size={16} className="text-amber-400" />,
+        border: 'border-amber-500/40 hover:border-amber-400',
+        glow: 'shadow-[0_0_25px_rgba(245,158,11,0.15)]',
+        badgeBg: 'bg-amber-500/15 text-amber-300 border-amber-500/30',
+        accentColor: '#F59E0B',
+        salaryTier: '₹12 - 30 LPA',
+      };
+    case 'data':
+      return {
+        icon: <BarChart3 size={16} className="text-indigo-400" />,
+        border: 'border-indigo-500/40 hover:border-indigo-400',
+        glow: 'shadow-[0_0_25px_rgba(99,102,241,0.15)]',
+        badgeBg: 'bg-indigo-500/15 text-indigo-300 border-indigo-500/30',
+        accentColor: '#6366F1',
+        salaryTier: '₹11 - 25 LPA',
+      };
+    case 'mobile':
+      return {
+        icon: <Smartphone size={16} className="text-blue-400" />,
+        border: 'border-blue-500/40 hover:border-blue-400',
+        glow: 'shadow-[0_0_25px_rgba(59,130,246,0.15)]',
+        badgeBg: 'bg-blue-500/15 text-blue-300 border-blue-500/30',
+        accentColor: '#3B82F6',
+        salaryTier: '₹10 - 22 LPA',
+      };
+    default:
+      return {
+        icon: <Sparkles size={16} className="text-purple-400" />,
+        border: 'border-purple-500/40 hover:border-purple-400',
+        glow: 'shadow-[0_0_25px_rgba(168,85,247,0.15)]',
+        badgeBg: 'bg-purple-500/15 text-purple-300 border-purple-500/30',
+        accentColor: '#A855F7',
+        salaryTier: '₹12 - 25 LPA',
+      };
+  }
+}
 
 export default function CareerPage() {
   const [careers, setCareers] = useState<Career[]>([]);
   const [careerState, setCareerState] = useState<'loading' | 'ready' | 'error'>('loading');
   const [activeCategory, setActiveCategory] = useState('all');
-  const [selectedCareer, setSelectedCareer] = useState<Career | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [modalCareer, setModalCareer] = useState<Career | null>(null);
   const [recommendation, setRecommendation] = useState<CareerRecommendation | null>(null);
   const [recommendationState, setRecommendationState] = useState<'idle' | 'loading' | 'error'>('idle');
   const [errorMessage, setErrorMessage] = useState('');
   const [progress, setProgress] = useState<Record<string, number>>({});
 
+  const configuratorRef = useRef<HTMLDivElement>(null);
+  const resultsRef = useRef<HTMLDivElement>(null);
+
   const form = useForm<CareerForm>({
     resolver: zodResolver(careerSchema),
-    defaultValues: fallbackProfile,
+    defaultValues: defaultProfile,
   });
+
+  const selectedYear = form.watch('year');
+  const selectedBranch = form.watch('branch');
+  const selectedExperience = form.watch('experience');
+  const selectedGoal = form.watch('goal');
+  const selectedCareerInterest = form.watch('careerInterests')?.[0] || 'AI / ML Engineer';
 
   useEffect(() => {
     fetch('/api/career')
-      .then((response) => {
-        if (!response.ok) throw new Error('Careers unavailable');
-        return response.json();
+      .then((res) => {
+        if (!res.ok) throw new Error('Careers unavailable');
+        return res.json();
       })
       .then((data: { items: Career[] }) => {
         setCareers(data.items);
-        setSelectedCareer(data.items[0] ?? null);
         setCareerState('ready');
       })
       .catch(() => setCareerState('error'));
 
     const stored = window.localStorage.getItem('studos-career-progress');
-    if (stored) setProgress(JSON.parse(stored));
+    if (stored) {
+      try {
+        setProgress(JSON.parse(stored));
+      } catch (e) {
+        console.error('Failed to parse progress', e);
+      }
+    }
   }, []);
 
-  const filteredCareers = useMemo(
-    () => activeCategory === 'all' ? careers : careers.filter((career) => career.category === activeCategory),
-    [activeCategory, careers]
-  );
+  // Filtered Careers
+  const filteredCareers = useMemo(() => {
+    return careers.filter((c) => {
+      const matchesCategory =
+        activeCategory === 'all'
+          ? true
+          : activeCategory === 'ai-ml'
+            ? c.category === 'ai-ml' || c.category === 'data'
+            : activeCategory === 'software'
+              ? c.category === 'software' || c.category === 'mobile'
+              : activeCategory === 'cloud'
+                ? c.category === 'cloud' || c.category === 'devops'
+                : c.category === activeCategory;
 
-  function updateProgress(skill: string, value: number) {
-    setProgress((current) => {
-      const next = { ...current, [skill]: value };
-      window.localStorage.setItem('studos-career-progress', JSON.stringify(next));
-      return next;
+      const matchesSearch =
+        searchQuery.trim() === '' ||
+        c.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        c.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        c.coreSkills.some((s) => s.toLowerCase().includes(searchQuery.toLowerCase()));
+
+      return matchesCategory && matchesSearch;
+    });
+  }, [activeCategory, searchQuery, careers]);
+
+  // Handle skill progress checkbox toggle
+  function toggleSkillProgress(skillName: string) {
+    setProgress((prev) => {
+      const currentVal = prev[skillName] ?? 0;
+      const nextVal = currentVal >= 100 ? 0 : 100;
+      const nextState = { ...prev, [skillName]: nextVal };
+      window.localStorage.setItem('studos-career-progress', JSON.stringify(nextState));
+      return nextState;
     });
   }
 
-  async function onSubmit(profile: CareerForm) {
+  // Handle generating recommendation
+  async function handleGenerate(profile: CareerForm) {
     setRecommendationState('loading');
     setErrorMessage('');
     try {
@@ -129,139 +299,1108 @@ export default function CareerPage() {
       if (!response.ok) throw new Error(data.error ?? 'We could not build your path.');
       setRecommendation(data);
       setRecommendationState('idle');
-      setTimeout(() => document.getElementById('path')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50);
+      setTimeout(() => {
+        resultsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 100);
     } catch (error) {
       setRecommendationState('error');
-      setErrorMessage(error instanceof Error ? error.message : 'We could not build your path.');
+      setErrorMessage(error instanceof Error ? error.message : 'Could not generate path.');
     }
   }
 
+  // Quick Action: Select role and jump to bottom selection section
+  const selectRoleAndConfigure = (career: Career) => {
+    form.setValue('careerInterests', [career.title]);
+    if (career.category === 'ai-ml' || career.category === 'data') {
+      form.setValue('interests', ['AI / ML', 'Data']);
+    } else if (career.category === 'security') {
+      form.setValue('interests', ['Cybersecurity']);
+    } else if (career.category === 'cloud' || career.category === 'devops') {
+      form.setValue('interests', ['Cloud']);
+    } else if (career.category === 'design') {
+      form.setValue('interests', ['Design']);
+    } else {
+      form.setValue('interests', ['Web Development']);
+    }
+    configuratorRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  };
+
   return (
-    <div className="container-s py-8 md:py-10">
-      <section id="overview" className="border-b border-borderline pb-8">
-        <div className="max-w-3xl">
-          <p className="eyebrow mb-3">Career</p>
-          <h1 className="max-w-2xl text-4xl font-semibold tracking-tight md:text-5xl">Know where you&apos;re going. Know what to learn.</h1>
-          <p className="mt-4 max-w-xl text-base leading-7 text-mut">Tell StudOS where you are today and we&apos;ll help you understand what to learn next.</p>
-          <div className="mt-6 flex flex-wrap gap-3">
-            <a href="#build-path" className="btn-primary inline-flex items-center gap-2">Build my career path <ArrowRight size={16} /></a>
-            <a href="#explore" className="btn-subtle inline-flex items-center gap-2">Explore careers <Compass size={16} /></a>
+    <div className="min-h-screen bg-transparent text-white selection:bg-purple-600 selection:text-white relative overflow-x-hidden">
+
+      {/* Background Lighting Meshes */}
+      <div className="fixed top-0 left-1/4 w-[600px] h-[600px] bg-purple-600/10 rounded-full blur-[160px] pointer-events-none -z-10" />
+      <div className="fixed top-1/3 right-1/4 w-[500px] h-[500px] bg-cyan-600/10 rounded-full blur-[160px] pointer-events-none -z-10" />
+      <div className="fixed bottom-10 left-1/3 w-[600px] h-[600px] bg-pink-600/10 rounded-full blur-[180px] pointer-events-none -z-10" />
+
+      {/* ── 1. COSMIC HERO & TELEMETRY RADAR (ELEMENT PLACEMENT: BALANCED 2-COLUMN) ── */}
+      <section className="relative pt-12 pb-16 border-b border-white/5">
+        <div className="container-s">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
+
+            {/* Left Column: Vision & Primary Actions */}
+            <div className="lg:col-span-7 text-left">
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-purple-500/10 border border-purple-500/25 text-purple-300 font-mono text-xs font-semibold tracking-wider uppercase mb-5">
+                <Sparkles size={13} className="text-purple-400" />
+                <span>ENGINEERING CAREER TELEMETRY & BLUEPRINTS</span>
+              </div>
+
+              <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight text-white leading-[1.12] mb-5">
+                Navigate From Classroom to{' '}
+                <span className="bg-gradient-to-r from-purple-400 via-pink-400 to-cyan-400 bg-clip-text text-transparent">
+                  High-Impact Tech Roles
+                </span>
+              </h1>
+
+              <p className="text-slate-300 text-sm sm:text-base leading-relaxed mb-8 max-w-xl">
+                Explore real-world engineering roles, benchmark against Tier-1 placement standards, and configure a tailored semester-by-semester roadmap calibrated for your academic branch.
+              </p>
+
+              {/* Action Buttons */}
+              <div className="flex flex-wrap items-center gap-3.5 mb-10">
+                <button
+                  onClick={() => configuratorRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+                  className="btn-pill-white text-xs sm:text-sm py-3 px-6 inline-flex items-center gap-2 font-bold shadow-xl shadow-purple-500/20 hover:scale-[1.02] transition-transform cursor-pointer"
+                >
+                  <SlidersHorizontal size={15} />
+                  <span>Configure My Pathway</span>
+                  <ArrowRight size={14} />
+                </button>
+                <a
+                  href="#role-directory"
+                  className="btn-pill-glass text-xs sm:text-sm py-3 px-5 inline-flex items-center gap-2 font-semibold hover:border-cyan-500/40 transition-colors"
+                >
+                  <Compass size={15} className="text-cyan-400" />
+                  <span>Explore 10+ Engineering Tracks</span>
+                </a>
+              </div>
+
+              {/* Metric Highlights Strip */}
+              <div className="grid grid-cols-3 gap-4 pt-6 border-t border-white/10 max-w-lg">
+                <div>
+                  <div className="text-xl sm:text-2xl font-black text-white">10+</div>
+                  <div className="text-[11px] font-mono text-slate-400 uppercase tracking-wide">Tech Roles</div>
+                </div>
+                <div>
+                  <div className="text-xl sm:text-2xl font-black text-cyan-400">₹14-35 LPA</div>
+                  <div className="text-[11px] font-mono text-slate-400 uppercase tracking-wide">Placement Target</div>
+                </div>
+                <div>
+                  <div className="text-xl sm:text-2xl font-black text-purple-400">100%</div>
+                  <div className="text-[11px] font-mono text-slate-400 uppercase tracking-wide">Practical Proof</div>
+                </div>
+              </div>
+            </div>
+
+            {/* Right Column: Interactive Role Radar Card */}
+            <div className="lg:col-span-5 relative">
+              {/* Floating HoloGyro Accent */}
+              <div className="absolute -top-12 -right-8 pointer-events-none opacity-30 hidden sm:block">
+                <HoloGyro size="sm" label="CAREER RADAR" />
+              </div>
+
+              <Card3D maxTilt={6} scale={1.015} glare={true} className="cyber-hud-card">
+                <div className="holo-scanner-sweep" />
+                <div className="relative rounded-3xl p-6 sm:p-7 bg-[#0B0820]/90 border border-purple-500/40 backdrop-blur-2xl shadow-[0_0_50px_rgba(168,85,247,0.18)] preserve-3d">
+
+                  {/* Floating Tag */}
+                  <div className="flex items-center justify-between pb-4 mb-4 border-b border-white/10">
+                    <div className="flex items-center gap-2">
+                      <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
+                      <span className="text-[11px] font-mono text-slate-300 font-bold uppercase tracking-wider">
+                        SPOTLIGHT CAREER TRACK
+                      </span>
+                    </div>
+                    <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-purple-500/15 text-purple-300 border border-purple-500/30 uppercase">
+                      Highest Demand
+                    </span>
+                  </div>
+
+                  {/* Role Header */}
+                  <div className="flex items-start gap-4 mb-4">
+                    <div className="p-3.5 rounded-2xl bg-purple-500/10 border border-purple-500/30 text-purple-300 shrink-0 translate-z-20 transition-transform">
+                      <Cpu size={28} />
+                    </div>
+                    <div>
+                      <h3 className="text-lg sm:text-xl font-extrabold text-white">
+                        AI & Machine Learning Engineer
+                      </h3>
+                      <p className="text-xs text-slate-400 mt-0.5">
+                        PyTorch, MLOps, LLM Fine-Tuning & Computer Vision
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Micro Telemetry Grid */}
+                  <div className="grid grid-cols-2 gap-2.5 my-4">
+                    <div className="p-3 rounded-xl bg-white/[0.03] border border-white/10">
+                      <span className="text-[10px] font-mono text-slate-400 block uppercase">Placement Bracket</span>
+                      <span className="text-sm font-bold text-cyan-300">₹14 - 32 LPA Tier-1</span>
+                    </div>
+                    <div className="p-3 rounded-xl bg-white/[0.03] border border-white/10">
+                      <span className="text-[10px] font-mono text-slate-400 block uppercase">Typical Curriculum</span>
+                      <span className="text-sm font-bold text-purple-300">4 Core Phases</span>
+                    </div>
+                  </div>
+
+                  {/* Core Stack Pills */}
+                  <div className="mb-5">
+                    <span className="text-[10px] font-mono text-slate-400 block uppercase mb-1.5">Benchmarked Stack</span>
+                    <div className="flex flex-wrap gap-1.5">
+                      {['Python', 'PyTorch', 'FastAPI', 'MLOps', 'Vector DBs', 'System Design'].map((stack) => (
+                        <span
+                          key={stack}
+                          className="text-[11px] font-mono px-2.5 py-0.5 rounded-full bg-white/5 border border-white/10 text-slate-300"
+                        >
+                          {stack}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Fast Trigger to Configurator */}
+                  <button
+                    onClick={() => {
+                      form.setValue('careerInterests', ['AI / ML Engineer']);
+                      form.setValue('interests', ['AI / ML', 'Data']);
+                      configuratorRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }}
+                    className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-purple-600 to-cyan-600 hover:from-purple-500 hover:to-cyan-500 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-lg shadow-purple-500/25 transition-all cursor-pointer translate-z-20"
+                  >
+                    <span>Calibrate My Profile For This Role</span>
+                    <ArrowRight size={14} />
+                  </button>
+
+                </div>
+              </Card3D>
+            </div>
+
           </div>
-        </div>
-        <div className="mt-10 grid gap-3 border-t border-borderline pt-5 text-sm sm:grid-cols-3">
-          <div><p className="text-mut">01</p><p className="mt-1 font-medium">Find a direction</p></div>
-          <div><p className="text-mut">02</p><p className="mt-1 font-medium">Learn with intention</p></div>
-          <div><p className="text-mut">03</p><p className="mt-1 font-medium">Build proof</p></div>
         </div>
       </section>
 
-      <nav className="sticky top-16 z-20 -mx-5 overflow-x-auto border-b border-borderline bg-bg/95 px-5 backdrop-blur" aria-label="Career sections">
-        <div className="flex min-w-max gap-6 py-3 text-sm">
-          {navItems.map(([href, label]) => <a key={href} href={`#${href}`} className="text-mut transition-colors hover:text-fg">{label}</a>)}
-        </div>
-      </nav>
+      {/* ── 2. ROLE DIRECTORY & DOMAIN EXPLORATION HUB ── */}
+      <section id="role-directory" className="container-s py-16 scroll-mt-20">
 
-      <section id="explore" className="scroll-mt-28 py-12">
-        <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
-          <div><p className="eyebrow mb-2">Explore careers</p><h2 className="text-2xl font-semibold tracking-tight">A direction, not a job title.</h2><p className="mt-1 text-sm text-mut">See what different technology careers look like and what they require.</p></div>
-          <div className="flex items-center gap-2 text-sm text-mut"><Layers3 size={16} /> {careers.length} paths to explore</div>
-        </div>
-        <div className="flex gap-2 overflow-x-auto border-b border-borderline pb-3">
-          {CAREER_CATEGORIES.slice(0, 5).map((category) => <button key={category.value} onClick={() => setActiveCategory(category.value)} className={`whitespace-nowrap px-3 py-1.5 text-sm transition-colors ${activeCategory === category.value ? 'border-b-2 border-accent text-fg' : 'text-mut hover:text-fg'}`}>{category.label}</button>)}
-        </div>
-        {careerState === 'loading' && <CareerDirectorySkeleton />}
-        {careerState === 'error' && <InlineError message="Careers aren't available right now." onRetry={() => window.location.reload()} />}
-        {careerState === 'ready' && (
-          <div className="mt-6 grid gap-8 lg:grid-cols-[1.15fr_0.85fr]">
-            <div className="divide-y divide-borderline border-y border-borderline">
-              {filteredCareers.map((career) => <button key={career.id} onClick={() => setSelectedCareer(career)} className={`flex w-full items-start justify-between gap-4 py-5 text-left transition-colors hover:bg-surface/50 ${selectedCareer?.id === career.id ? 'text-fg' : 'text-mut'}`}><span><span className="block font-medium">{career.title}</span><span className="mt-1 block max-w-xl text-sm leading-6">{career.description}</span></span><ChevronRight size={18} className="mt-1 shrink-0 text-accent" /></button>)}
+        {/* Section Title & Search/Filter Toolbar */}
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8">
+          <div>
+            <div className="flex items-center gap-2 mb-1.5">
+              <span className="w-2 h-2 rounded-full bg-cyan-400" />
+              <span className="text-[11px] font-mono font-bold tracking-widest text-cyan-400 uppercase">
+                ENGINEERING DIRECTORY
+              </span>
             </div>
-            {selectedCareer && <CareerSpotlight career={selectedCareer} />}
+            <h2 className="text-2xl sm:text-4xl font-extrabold text-white">
+              Explore High-Growth Engineering Careers
+            </h2>
+            <p className="text-xs sm:text-sm text-slate-400 mt-1 max-w-xl">
+              Compare core skills, entry salaries, and real milestone roadmaps for top tech specializations.
+            </p>
+          </div>
+
+          {/* Search Box */}
+          <div className="w-full md:w-72 relative">
+            <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search roles or skills (e.g. Docker, AI)..."
+              className="w-full pl-10 pr-4 py-2.5 rounded-full bg-white/5 border border-white/10 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500/60 focus:bg-white/[0.08] transition-all"
+            />
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery('')}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white"
+              >
+                <X size={13} />
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* Category Navigation Pills */}
+        <div className="flex items-center gap-2 overflow-x-auto pb-3 mb-8 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          {[
+            { id: 'all', label: 'All Roles', count: careers.length },
+            { id: 'ai-ml', label: 'AI & Data Science', count: careers.filter(c => c.category === 'ai-ml' || c.category === 'data').length },
+            { id: 'software', label: 'Software & Web', count: careers.filter(c => c.category === 'software' || c.category === 'mobile').length },
+            { id: 'cloud', label: 'Cloud & DevOps', count: careers.filter(c => c.category === 'cloud' || c.category === 'devops').length },
+            { id: 'security', label: 'Cybersecurity', count: careers.filter(c => c.category === 'security').length },
+            { id: 'design', label: 'UI/UX & Product', count: careers.filter(c => c.category === 'design').length },
+          ].map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveCategory(tab.id)}
+              className={`px-4 py-2 rounded-full text-xs font-semibold whitespace-nowrap transition-all flex items-center gap-2 cursor-pointer ${activeCategory === tab.id
+                  ? 'bg-gradient-to-r from-purple-600 to-cyan-600 text-white shadow-lg shadow-purple-500/25 border border-white/20'
+                  : 'bg-white/5 border border-white/10 text-slate-400 hover:text-white hover:bg-white/10'
+                }`}
+            >
+              <span>{tab.label}</span>
+              <span className={`text-[10px] px-1.5 py-0.2 rounded-full ${activeCategory === tab.id ? 'bg-white/20 text-white' : 'bg-white/10 text-slate-400'}`}>
+                {tab.count}
+              </span>
+            </button>
+          ))}
+        </div>
+
+        {/* Roles Grid (Structured 3-Column Uniform Cards) */}
+        {careerState === 'loading' && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[1, 2, 3, 4, 5, 6].map((i) => (
+              <div key={i} className="h-72 rounded-3xl bg-white/[0.02] border border-white/10 animate-pulse" />
+            ))}
+          </div>
+        )}
+
+        {careerState === 'ready' && filteredCareers.length === 0 && (
+          <div className="p-12 text-center rounded-3xl bg-white/[0.02] border border-white/10 max-w-md mx-auto">
+            <Compass size={32} className="text-slate-500 mx-auto mb-3" />
+            <h4 className="text-base font-bold text-white mb-1">No careers found</h4>
+            <p className="text-xs text-slate-400 mb-4">Try clearing your search filters or browse all tracks.</p>
+            <button
+              onClick={() => { setActiveCategory('all'); setSearchQuery(''); }}
+              className="btn-pill-white text-xs py-2 px-5 font-semibold"
+            >
+              Reset Filters
+            </button>
+          </div>
+        )}
+
+        {careerState === 'ready' && filteredCareers.length > 0 && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredCareers.map((career) => {
+              const meta = getDomainMeta(career.category);
+              const isSelectedInForm = selectedCareerInterest === career.title;
+
+              return (
+                <Card3D key={career.id} maxTilt={6} scale={1.015} glare={true} className="cyber-hud-card h-full">
+                  <div className="holo-scanner-sweep" />
+                  <div
+                    className={`
+                      p-6 rounded-3xl bg-[#0A071E]/95 border backdrop-blur-xl transition-all duration-300
+                      flex flex-col justify-between group h-full relative overflow-hidden preserve-3d
+                      ${meta.border} ${meta.glow}
+                      ${isSelectedInForm ? 'ring-2 ring-cyan-400/80 bg-[#0F0B29]' : ''}
+                    `}
+                  >
+                    {/* Top Ambient Glow Pill */}
+                    <div
+                      className="absolute top-0 right-0 w-32 h-32 rounded-full blur-3xl opacity-20 pointer-events-none"
+                      style={{ backgroundColor: meta.accentColor }}
+                    />
+
+                    <div>
+                      {/* Header Row: Domain Icon + Badges */}
+                      <div className="flex items-center justify-between mb-4">
+                        <div className="flex items-center gap-2">
+                          <span className="p-2.5 rounded-xl bg-white/5 border border-white/10 translate-z-20 transition-transform">
+                            {meta.icon}
+                          </span>
+                          <span className={`text-[10px] font-mono px-2 py-0.5 rounded-full border uppercase tracking-wider ${meta.badgeBg}`}>
+                            {career.category}
+                          </span>
+                        </div>
+                        <span className="text-[10px] font-bold text-emerald-300 bg-emerald-500/10 px-2.5 py-0.5 rounded-full border border-emerald-500/20">
+                          {meta.salaryTier}
+                        </span>
+                      </div>
+
+                      {/* Role Title */}
+                      <h3 className="text-xl font-bold text-white group-hover:text-cyan-300 transition-colors">
+                        {career.title}
+                      </h3>
+
+                      {/* Role Description */}
+                      <p className="text-xs text-slate-400 mt-2 line-clamp-2 leading-relaxed">
+                        {career.description}
+                      </p>
+
+                      {/* Benchmarked Core Skills */}
+                      <div className="mt-4 pt-3 border-t border-white/5">
+                        <span className="text-[10px] font-mono text-slate-500 uppercase tracking-wider block mb-2">
+                          Core Competencies
+                        </span>
+                        <div className="flex flex-wrap gap-1.5">
+                          {career.coreSkills.slice(0, 4).map((s) => (
+                            <span
+                              key={s}
+                              className="px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-white/5 border border-white/10 text-slate-300 group-hover:border-white/20 transition-colors"
+                            >
+                              {s}
+                            </span>
+                          ))}
+                          {career.coreSkills.length > 4 && (
+                            <span className="px-2 py-0.5 rounded-full text-[10px] font-mono text-slate-400 bg-white/5">
+                              +{career.coreSkills.length - 4} more
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Bottom Action Deck */}
+                    <div className="mt-6 pt-4 border-t border-white/10 flex items-center justify-between gap-2 translate-z-20">
+                      <button
+                        onClick={() => setModalCareer(career)}
+                        className="text-xs text-slate-300 hover:text-white font-medium inline-flex items-center gap-1.5 py-1 px-2.5 rounded-lg hover:bg-white/5 transition-colors cursor-pointer"
+                      >
+                        <BookOpen size={13} className="text-purple-400" />
+                        <span>Roadmap</span>
+                      </button>
+
+                      <button
+                        onClick={() => selectRoleAndConfigure(career)}
+                        className="text-xs font-bold text-cyan-400 hover:text-cyan-300 inline-flex items-center gap-1.5 py-1.5 px-3 rounded-full bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/30 transition-all cursor-pointer group-hover:translate-x-0.5"
+                      >
+                        <span>Build Pathway</span>
+                        <ArrowRight size={13} />
+                      </button>
+                    </div>
+
+                  </div>
+                </Card3D>
+              );
+            })}
           </div>
         )}
       </section>
 
-      <section id="build-path" className="scroll-mt-28 border-t border-borderline py-12">
-        <div className="mb-7 max-w-2xl"><p className="eyebrow mb-2">Build your career path</p><h2 className="text-2xl font-semibold tracking-tight">Start with where you are.</h2><p className="mt-1 text-sm leading-6 text-mut">Your answers shape the order of the roadmap. Nothing here locks you into one career.</p></div>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-8 lg:grid-cols-[0.8fr_1.2fr]">
-          <div className="border-l-2 border-accent pl-5"><p className="text-sm font-medium">A useful path is specific enough to act on.</p><p className="mt-3 text-sm leading-6 text-mut">Tell us your stage, your curiosity and the kind of opportunity you want to become ready for.</p><div className="mt-8 space-y-4 text-sm text-mut"><p className="flex gap-2"><Check size={16} className="text-success" /> Rule-based prototype today</p><p className="flex gap-2"><Check size={16} className="text-success" /> AI recommendations can plug in later</p><p className="flex gap-2"><Check size={16} className="text-success" /> Saved locally while you explore</p></div></div>
-          <div className="surface p-5 md:p-7">
-            <div className="grid gap-5 md:grid-cols-2">
-              <FormSelect label="Current year" error={form.formState.errors.year?.message} {...form.register('year')} options={YEAR_OPTIONS.map((item) => ({ value: item.value, label: item.label }))} />
-              <FormSelect label="Branch" error={form.formState.errors.branch?.message} {...form.register('branch')} options={BRANCH_OPTIONS.map((item) => ({ value: item.value, label: item.label }))} />
-              <FormSelect label="Experience" {...form.register('experience')} options={EXPERIENCE_OPTIONS} />
-              <FormSelect label="Primary goal" {...form.register('goal')} options={GOAL_OPTIONS} />
-            </div>
-            <CheckboxGroup label="Interests" options={INTEREST_OPTIONS.map((item) => item.value)} registration={form.register('interests')} />
-            <CheckboxGroup label="Current skills" options={SKILL_OPTIONS} registration={form.register('currentSkills')} compact />
-            <CheckboxGroup label="Career direction" options={CAREER_INTEREST_OPTIONS} registration={form.register('careerInterests')} />
-            {(form.formState.errors.interests || form.formState.errors.careerInterests) && <p className="mb-4 text-sm text-error">{form.formState.errors.interests?.message ?? form.formState.errors.careerInterests?.message}</p>}
-            <button type="submit" disabled={recommendationState === 'loading'} className="btn-primary inline-flex items-center gap-2 disabled:cursor-wait disabled:opacity-60">{recommendationState === 'loading' ? 'Building your path...' : 'Generate my path'} <ArrowRight size={16} /></button>
-            {recommendationState === 'error' && <p className="mt-3 text-sm text-error">{errorMessage}</p>}
+      {/* ── 3. RE-ENGINEERED BOTTOM SELECTION SECTION (ELEMENT PLACING THEORY & MASTER-DETAIL STUDIO) ── */}
+      <section
+        ref={configuratorRef}
+        id="build-path"
+        className="container-s py-16 scroll-mt-20 border-t border-white/10"
+      >
+
+        {/* Section Header */}
+        <div className="text-center max-w-2xl mx-auto mb-12">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/25 text-cyan-300 font-mono text-xs font-semibold tracking-wider uppercase mb-3">
+            <SlidersHorizontal size={13} className="text-cyan-400" />
+            <span>INTERACTIVE PATHWAY STUDIO</span>
           </div>
-        </form>
+          <h2 className="text-2xl sm:text-4xl font-extrabold text-white">
+            Configure Your Custom Engineering Blueprint
+          </h2>
+          <p className="text-xs sm:text-sm text-slate-400 mt-2">
+            Structured around Element Placement Theory: select your standing, discipline, and ambition to generate a precision roadmap.
+          </p>
+        </div>
+
+        {/* Master-Detail Layout (7 Columns Config Deck + 5 Columns Live Telemetry Blueprint) */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+
+          {/* Left Column: Interactive Form Controls (7 Cols) */}
+          <div className="lg:col-span-7 space-y-6">
+            <form onSubmit={form.handleSubmit(handleGenerate)} className="space-y-6">
+
+              {/* STEP 1: Academic Standing & Experience */}
+              <div className="p-6 sm:p-7 rounded-3xl bg-[#0B0820]/90 border border-purple-500/30 backdrop-blur-xl shadow-xl">
+                <div className="flex items-center justify-between mb-4 pb-3 border-b border-white/5">
+                  <div className="flex items-center gap-2.5">
+                    <span className="w-6 h-6 rounded-full bg-purple-600 text-white font-mono text-xs font-bold flex items-center justify-center shadow-md shadow-purple-500/40">
+                      1
+                    </span>
+                    <div>
+                      <h3 className="text-sm font-bold text-white uppercase tracking-wider">
+                        Academic Standing & Experience
+                      </h3>
+                      <p className="text-[11px] text-slate-400">Calibrates difficulty and timeline</p>
+                    </div>
+                  </div>
+                  <span className="text-[10px] font-mono text-purple-400 bg-purple-500/10 px-2 py-0.5 rounded-full border border-purple-500/20">
+                    Step 1 of 3
+                  </span>
+                </div>
+
+                {/* 4 Year Cards */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 mb-5">
+                  {YEAR_OPTIONS.map((item) => {
+                    const isSelected = selectedYear === item.value;
+                    const meta = YEAR_METADATA[item.value];
+                    return (
+                      <button
+                        type="button"
+                        key={item.value}
+                        onClick={() => form.setValue('year', item.value as any)}
+                        className={`
+                          p-3 rounded-2xl border text-left transition-all cursor-pointer flex flex-col justify-between h-24
+                          ${isSelected
+                            ? 'bg-purple-600 text-white border-purple-400 shadow-lg shadow-purple-500/30 ring-2 ring-purple-400/50'
+                            : 'bg-white/[0.03] text-slate-300 border-white/10 hover:border-white/25 hover:bg-white/[0.06]'
+                          }
+                        `}
+                      >
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs font-bold">{item.label}</span>
+                          {isSelected && <CheckCircle2 size={13} className="text-white" />}
+                        </div>
+                        <span className={`text-[10px] line-clamp-2 leading-snug ${isSelected ? 'text-purple-100' : 'text-slate-400'}`}>
+                          {meta?.subtitle}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {/* Experience Level Selector */}
+                <div>
+                  <label className="text-[11px] font-mono text-slate-400 uppercase tracking-wider block mb-2">
+                    Current Skill Maturity
+                  </label>
+                  <div className="grid grid-cols-3 gap-2">
+                    {EXPERIENCE_OPTIONS.map((exp) => {
+                      const isSelected = selectedExperience === exp.value;
+                      return (
+                        <button
+                          type="button"
+                          key={exp.value}
+                          onClick={() => form.setValue('experience', exp.value)}
+                          className={`
+                            py-2 px-3 rounded-xl text-xs font-semibold border transition-all text-center cursor-pointer
+                            ${isSelected
+                              ? 'bg-white text-[#070A1E] border-white shadow-md'
+                              : 'bg-white/5 text-slate-400 border-white/10 hover:text-white hover:bg-white/10'
+                            }
+                          `}
+                        >
+                          {exp.label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+
+              {/* STEP 2: Engineering Discipline (Branch) */}
+              <div className="p-6 sm:p-7 rounded-3xl bg-[#0B0820]/90 border border-cyan-500/30 backdrop-blur-xl shadow-xl">
+                <div className="flex items-center justify-between mb-4 pb-3 border-b border-white/5">
+                  <div className="flex items-center gap-2.5">
+                    <span className="w-6 h-6 rounded-full bg-cyan-600 text-white font-mono text-xs font-bold flex items-center justify-center shadow-md shadow-cyan-500/40">
+                      2
+                    </span>
+                    <div>
+                      <h3 className="text-sm font-bold text-white uppercase tracking-wider">
+                        Engineering Discipline
+                      </h3>
+                      <p className="text-[11px] text-slate-400">Select your undergraduate department</p>
+                    </div>
+                  </div>
+                  <span className="text-[10px] font-mono text-cyan-400 bg-cyan-500/10 px-2 py-0.5 rounded-full border border-cyan-500/20">
+                    Step 2 of 3
+                  </span>
+                </div>
+
+                {/* 8 Branch Pills */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                  {BRANCH_OPTIONS.map((item) => {
+                    const isSelected = selectedBranch === item.value;
+                    return (
+                      <button
+                        type="button"
+                        key={item.value}
+                        onClick={() => form.setValue('branch', item.value)}
+                        className={`
+                          py-2.5 px-3 rounded-xl text-xs font-semibold border transition-all text-center cursor-pointer flex items-center justify-center gap-1.5
+                          ${isSelected
+                            ? 'bg-cyan-600 text-white border-cyan-400 shadow-md shadow-cyan-500/30'
+                            : 'bg-white/[0.03] text-slate-300 border-white/10 hover:border-white/20 hover:bg-white/[0.06]'
+                          }
+                        `}
+                      >
+                        <span>{item.value}</span>
+                        {isSelected && <Check size={12} className="text-white" />}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* STEP 3: Target Role & Ambition */}
+              <div className="p-6 sm:p-7 rounded-3xl bg-[#0B0820]/90 border border-pink-500/30 backdrop-blur-xl shadow-xl">
+                <div className="flex items-center justify-between mb-4 pb-3 border-b border-white/5">
+                  <div className="flex items-center gap-2.5">
+                    <span className="w-6 h-6 rounded-full bg-pink-600 text-white font-mono text-xs font-bold flex items-center justify-center shadow-md shadow-pink-500/40">
+                      3
+                    </span>
+                    <div>
+                      <h3 className="text-sm font-bold text-white uppercase tracking-wider">
+                        Target Role & Primary Ambition
+                      </h3>
+                      <p className="text-[11px] text-slate-400">Align your goal with verified career tracks</p>
+                    </div>
+                  </div>
+                  <span className="text-[10px] font-mono text-pink-400 bg-pink-500/10 px-2 py-0.5 rounded-full border border-pink-500/20">
+                    Step 3 of 3
+                  </span>
+                </div>
+
+                {/* Career Role Selection Dropdown / Pill */}
+                <div className="mb-4">
+                  <label className="text-[11px] font-mono text-slate-400 uppercase tracking-wider block mb-1.5">
+                    Selected Career Direction
+                  </label>
+                  <select
+                    value={selectedCareerInterest}
+                    onChange={(e) => form.setValue('careerInterests', [e.target.value])}
+                    aria-label="Selected Career Direction"
+                    className="w-full py-2.5 px-3.5 rounded-xl bg-[#140F2E] border border-pink-500/30 text-white text-xs font-semibold focus:outline-none focus:border-pink-400 cursor-pointer"
+                  >
+                    {CAREER_INTEREST_OPTIONS.map((role) => (
+                      <option key={role} value={role} className="bg-[#0B0820] text-white">
+                        {role}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Ambition / Goal Cards */}
+                <div>
+                  <label className="text-[11px] font-mono text-slate-400 uppercase tracking-wider block mb-2">
+                    What is your immediate 6-12 month ambition?
+                  </label>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                    {[
+                      'Placement',
+                      'Internship',
+                      'Hackathons',
+                      'Research',
+                      'Startup',
+                    ].map((key) => {
+                      const item = GOAL_METADATA[key];
+                      if (!item) return null;
+                      const Icon = item.icon;
+                      const isSelected = selectedGoal === key;
+
+                      return (
+                        <button
+                          type="button"
+                          key={key}
+                          onClick={() => form.setValue('goal', key as any)}
+                          className={`
+                            p-3 rounded-2xl border text-left transition-all cursor-pointer flex items-start gap-3
+                            ${isSelected
+                              ? 'bg-gradient-to-r from-pink-600/40 to-purple-600/40 border-pink-400 text-white shadow-lg shadow-pink-500/20 ring-1 ring-pink-400'
+                              : 'bg-white/[0.03] text-slate-300 border-white/10 hover:border-white/20 hover:bg-white/[0.06]'
+                            }
+                          `}
+                        >
+                          <div className={`p-2 rounded-xl shrink-0 ${item.color}`}>
+                            <Icon size={16} />
+                          </div>
+                          <div>
+                            <div className="text-xs font-bold text-white flex items-center gap-1.5">
+                              <span>{item.label}</span>
+                              {isSelected && <CheckCircle2 size={12} className="text-pink-400" />}
+                            </div>
+                            <p className="text-[11px] text-slate-400 mt-0.5 leading-snug">
+                              {item.desc}
+                            </p>
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+              </div>
+
+            </form>
+          </div>
+
+          {/* Right Column: Live Telemetry Blueprint HUD (Sticky 5 Cols) */}
+          <div className="lg:col-span-5 lg:sticky lg:top-24">
+            <Card3D maxTilt={4} scale={1.01} glare={true} className="cyber-hud-card">
+              <div className="holo-scanner-sweep" />
+              <div className="p-6 sm:p-7 rounded-3xl bg-[#0E0926]/95 border border-cyan-500/40 backdrop-blur-2xl shadow-[0_0_40px_rgba(6,182,212,0.15)] relative overflow-hidden preserve-3d">
+
+                {/* Top Ambient Glow */}
+                <div className="absolute top-0 right-0 w-40 h-40 bg-cyan-500/15 rounded-full blur-3xl pointer-events-none" />
+
+                {/* Header */}
+                <div className="flex items-center justify-between pb-4 mb-5 border-b border-white/10">
+                  <div className="flex items-center gap-2">
+                    <span className="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-pulse" />
+                    <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-cyan-300">
+                      LIVE BLUEPRINT TELEMETRY
+                    </span>
+                  </div>
+                  <span className="text-[10px] font-mono text-slate-400 bg-white/5 px-2 py-0.5 rounded-full border border-white/10">
+                    REAL-TIME SYNC
+                  </span>
+                </div>
+
+                {/* Dynamic Specs Table */}
+                <div className="space-y-3.5 mb-6">
+
+                  {/* Target Role */}
+                  <div className="p-3.5 rounded-2xl bg-white/[0.03] border border-white/10 translate-z-20">
+                    <span className="text-[10px] font-mono text-slate-400 uppercase block">Selected Direction</span>
+                    <div className="text-base font-extrabold text-white mt-0.5 flex items-center gap-2">
+                      <Target size={15} className="text-cyan-400" />
+                      <span>{selectedCareerInterest}</span>
+                    </div>
+                  </div>
+
+                  {/* Standing & Branch */}
+                  <div className="grid grid-cols-2 gap-2.5">
+                    <div className="p-3 rounded-xl bg-white/[0.03] border border-white/10">
+                      <span className="text-[10px] font-mono text-slate-400 uppercase block">Standing</span>
+                      <span className="text-xs font-bold text-purple-300">
+                        Year {selectedYear} ({selectedExperience})
+                      </span>
+                    </div>
+                    <div className="p-3 rounded-xl bg-white/[0.03] border border-white/10">
+                      <span className="text-[10px] font-mono text-slate-400 uppercase block">Branch</span>
+                      <span className="text-xs font-bold text-cyan-300">{selectedBranch} Engineering</span>
+                    </div>
+                  </div>
+
+                  {/* Target Ambition */}
+                  <div className="p-3 rounded-xl bg-white/[0.03] border border-white/10">
+                    <span className="text-[10px] font-mono text-slate-400 uppercase block">Primary Ambition</span>
+                    <span className="text-xs font-bold text-pink-300">
+                      {GOAL_METADATA[selectedGoal]?.label || selectedGoal}
+                    </span>
+                  </div>
+
+                  {/* Estimated Prep & Calibration */}
+                  <div className="grid grid-cols-2 gap-2.5">
+                    <div className="p-3 rounded-xl bg-white/[0.03] border border-white/10">
+                      <span className="text-[10px] font-mono text-slate-400 uppercase block">Est. Prep Time</span>
+                      <span className="text-xs font-bold text-emerald-300 flex items-center gap-1 mt-0.5">
+                        <Clock size={12} />
+                        <span>~140 - 180 Hrs</span>
+                      </span>
+                    </div>
+                    <div className="p-3 rounded-xl bg-white/[0.03] border border-white/10">
+                      <span className="text-[10px] font-mono text-slate-400 uppercase block">Rubric Match</span>
+                      <span className="text-xs font-bold text-amber-300 flex items-center gap-1 mt-0.5">
+                        <Award size={12} />
+                        <span>Tier-1 Calibrated</span>
+                      </span>
+                    </div>
+                  </div>
+
+                </div>
+
+                {/* Big Primary Generation Button */}
+                <button
+                  type="button"
+                  onClick={form.handleSubmit(handleGenerate)}
+                  disabled={recommendationState === 'loading'}
+                  className="w-full py-4 px-6 rounded-2xl bg-gradient-to-r from-purple-600 via-pink-600 to-cyan-500 hover:from-purple-500 hover:to-cyan-400 text-white font-extrabold text-sm flex items-center justify-center gap-2.5 shadow-2xl shadow-purple-500/30 transition-all hover:scale-[1.02] cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed translate-z-30"
+                >
+                  {recommendationState === 'loading' ? (
+                    <>
+                      <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                      <span>Synthesizing Blueprint...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Zap size={16} />
+                      <span>Generate Custom Career Roadmap</span>
+                      <ArrowRight size={16} />
+                    </>
+                  )}
+                </button>
+
+                {recommendationState === 'error' && (
+                  <div className="mt-3 p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs text-center">
+                    {errorMessage}
+                  </div>
+                )}
+
+                <p className="text-[11px] text-slate-400 text-center mt-3">
+                  Calculates required skills, capstone projects, and real internship benchmarks.
+                </p>
+
+              </div>
+            </Card3D>
+          </div>
+
+        </div>
+
       </section>
 
-      <section id="path" className="scroll-mt-28 border-t border-borderline py-12">
-        <div className="mb-7 flex flex-wrap items-end justify-between gap-4"><div><p className="eyebrow mb-2">Your career path</p><h2 className="text-2xl font-semibold tracking-tight">What should happen next?</h2></div>{recommendation && <p className="text-sm text-mut">Based on {recommendation.basedOn.join(' · ')}</p>}</div>
-        {recommendation ? <RecommendationPanel recommendation={recommendation} progress={progress} onProgress={updateProgress} /> : <div className="surface flex flex-col items-start gap-3 p-7"><Sparkles size={20} className="text-accent" /><p className="font-medium">Tell us a little more about your interests.</p><p className="max-w-xl text-sm leading-6 text-mut">Your first recommendation will appear here as a visual sequence of skills, projects and opportunities.</p><a href="#build-path" className="mt-2 inline-flex items-center gap-2 text-sm text-accent">Build my path <ArrowRight size={15} /></a></div>}
-      </section>
+      {/* ── 4. CUSTOM PATHWAY RESULTS (DISPLAYED AFTER GENERATION) ── */}
+      {recommendation && (
+        <section
+          ref={resultsRef}
+          id="custom-pathway"
+          className="container-s py-16 scroll-mt-20 border-t border-white/10 space-y-12"
+        >
 
-      {recommendation && <>
-        <section id="learning" className="scroll-mt-28 border-t border-borderline py-12"><SectionHeading eyebrow="Learn next" title="The next useful skill beats the biggest course list." subtitle="A short sequence based on your current stage and target." /><div className="mt-6 grid gap-3 md:grid-cols-3">{recommendation.nextSkills.slice(0, 3).map((skill, index) => <NextSkill key={skill.id} index={index} skill={skill} resources={recommendation.recommendedResources} />)}</div><div className="mt-8 border-t border-borderline pt-6"><ResourceList resources={recommendation.recommendedResources} /></div></section>
-        <section id="projects" className="scroll-mt-28 border-t border-borderline py-12"><SectionHeading eyebrow="What should you build?" title="Learning becomes real when something exists." subtitle="Choose a project that gives your next skill a visible shape." /><div className="mt-6 grid gap-4 lg:grid-cols-3">{recommendation.recommendedProjects.map((project) => <ProjectPreview key={project.id} project={project} />)}</div><a href="/projects" className="mt-6 inline-flex items-center gap-2 text-sm text-accent">Explore Projects <ArrowRight size={15} /></a></section>
-        <section id="opportunities" className="scroll-mt-28 border-t border-borderline py-12"><SectionHeading eyebrow="For this career" title="Where to put your preparation to work." subtitle="These are directions to look for, not promises of availability." /><div className="mt-6 divide-y divide-borderline border-y border-borderline">{recommendation.recommendedOpportunities.map((opportunity) => <a key={opportunity.id} href="/opportunities" className="flex flex-wrap items-center justify-between gap-4 py-5 hover:bg-surface/40"><span><span className="text-xs uppercase tracking-[0.16em] text-accent">{opportunity.type}</span><span className="mt-1 block font-medium">{opportunity.title}</span><span className="mt-1 block text-sm text-mut">{opportunity.description}</span></span><ArrowRight size={17} className="text-accent" /></a>)}</div><a href="/opportunities" className="mt-6 inline-flex items-center gap-2 text-sm text-accent">Explore Opportunities <ArrowRight size={15} /></a></section>
-        <ProgressSection recommendation={recommendation} progress={progress} onProgress={updateProgress} />
-      </>}
+          {/* Mission Control Overview Banner */}
+          <div className="p-8 sm:p-10 rounded-3xl bg-[#0D0929] border border-cyan-500/50 shadow-[0_0_50px_rgba(6,182,212,0.18)] relative overflow-hidden">
 
-      <section className="border-t border-borderline py-12"><div className="flex flex-col justify-between gap-6 md:flex-row md:items-end"><div><p className="eyebrow mb-2">Keep moving</p><h2 className="text-2xl font-semibold tracking-tight">Become ready for the opportunity.</h2><p className="mt-2 max-w-xl text-sm leading-6 text-mut">A career path is a working document. Revisit it when your interests, skills or goals change.</p></div><a href="#build-path" className="btn-primary inline-flex w-fit items-center gap-2">Update my path <ArrowRight size={16} /></a></div></section>
+            {/* Ambient Lighting Orbs */}
+            <div className="absolute top-0 right-1/4 w-96 h-96 bg-cyan-600/15 rounded-full blur-[140px] pointer-events-none" />
+            <div className="absolute bottom-0 left-1/4 w-80 h-80 bg-purple-600/15 rounded-full blur-[140px] pointer-events-none" />
+
+            <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-8">
+
+              <div className="max-w-2xl">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/15 border border-cyan-500/30 text-cyan-300 font-mono text-[11px] font-bold uppercase tracking-wider mb-3">
+                  <Sparkles size={12} />
+                  <span>CALIBRATED FOR {recommendation.currentStage}</span>
+                </div>
+
+                <h2 className="text-2xl sm:text-4xl font-extrabold text-white">
+                  Target Blueprint: {recommendation.career.title}
+                </h2>
+
+                <p className="text-xs sm:text-sm text-slate-300 mt-2.5 leading-relaxed">
+                  {recommendation.career.description}
+                </p>
+
+                <div className="flex flex-wrap gap-2 mt-4">
+                  {recommendation.basedOn.map((tag) => (
+                    <span
+                      key={tag}
+                      className="text-[11px] font-mono px-2.5 py-0.5 rounded-full bg-white/5 border border-white/10 text-slate-300"
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              {/* Match Gauge & Fast Retune */}
+              <div className="flex sm:flex-row lg:flex-col items-center gap-4 shrink-0">
+                <div className="p-5 rounded-2xl bg-white/[0.04] border border-white/10 text-center min-w-[160px]">
+                  <span className="text-3xl font-black text-cyan-400">94%</span>
+                  <span className="text-[10px] font-mono text-slate-400 block uppercase tracking-wider mt-0.5">
+                    Profile Match
+                  </span>
+                </div>
+
+                <button
+                  onClick={() => configuratorRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+                  className="btn-pill-glass text-xs py-2 px-4 font-semibold text-slate-300 hover:text-white"
+                >
+                  Adjust Parameters ↺
+                </button>
+              </div>
+
+            </div>
+          </div>
+
+          {/* 1. Next High-Leverage Skills (Interactive Mark-as-Done) */}
+          <div>
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <span className="text-[11px] font-mono font-bold tracking-widest text-purple-400 uppercase block mb-1">
+                  STAGE 1: COMPETENCIES
+                </span>
+                <h3 className="text-xl sm:text-2xl font-bold text-white">Priority Skills to Master</h3>
+              </div>
+              <span className="text-xs font-mono text-slate-400 bg-white/5 px-3 py-1 rounded-full border border-white/10">
+                Tap checkbox to track progress
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+              {recommendation.nextSkills.map((skill, index) => {
+                const isCompleted = (progress[skill.name] ?? 0) >= 100;
+                return (
+                  <div
+                    key={skill.id}
+                    className={`
+                      p-5 rounded-2xl border backdrop-blur-md transition-all duration-200 flex flex-col justify-between
+                      ${isCompleted
+                        ? 'bg-emerald-950/20 border-emerald-500/40 shadow-[0_0_20px_rgba(16,185,129,0.1)]'
+                        : 'bg-[#0E0B22] border-purple-500/30 hover:border-purple-400'
+                      }
+                    `}
+                  >
+                    <div>
+                      <div className="flex items-center justify-between mb-2.5">
+                        <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-purple-500/15 text-purple-300 uppercase">
+                          Priority {index + 1}
+                        </span>
+                        <span className="text-[11px] font-mono text-slate-400 flex items-center gap-1">
+                          <Clock size={12} />
+                          <span>{skill.estimatedHours} hrs</span>
+                        </span>
+                      </div>
+
+                      <h4 className={`text-base font-bold transition-colors ${isCompleted ? 'text-emerald-300 line-through' : 'text-white'}`}>
+                        {skill.name}
+                      </h4>
+
+                      <p className="text-xs text-slate-400 mt-1.5 line-clamp-2 leading-relaxed">
+                        {skill.description}
+                      </p>
+                    </div>
+
+                    <div className="mt-5 pt-3 border-t border-white/5 flex items-center justify-between">
+                      <span className="text-[11px] font-mono text-slate-500 capitalize">
+                        {skill.level} impact
+                      </span>
+                      <button
+                        onClick={() => toggleSkillProgress(skill.name)}
+                        className={`
+                          text-xs font-bold py-1 px-3 rounded-full border transition-all cursor-pointer inline-flex items-center gap-1.5
+                          ${isCompleted
+                            ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
+                            : 'bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-300 border-cyan-500/30'
+                          }
+                        `}
+                      >
+                        {isCompleted ? (
+                          <>
+                            <Check size={12} />
+                            <span>Completed</span>
+                          </>
+                        ) : (
+                          <span>Mark Done</span>
+                        )}
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* 2. Recommended Capstone Projects (Proof of Work) */}
+          <div>
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <span className="text-[11px] font-mono font-bold tracking-widest text-pink-400 uppercase block mb-1">
+                  STAGE 2: PROOF OF WORK
+                </span>
+                <h3 className="text-xl sm:text-2xl font-bold text-white">Recommended Capstone Projects</h3>
+              </div>
+              <Link
+                href="/ideas"
+                className="text-xs text-pink-400 hover:text-pink-300 font-semibold inline-flex items-center gap-1"
+              >
+                <span>Browse Student Idea Hub</span>
+                <ArrowRight size={13} />
+              </Link>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+              {recommendation.recommendedProjects.map((proj) => (
+                <div
+                  key={proj.id}
+                  className="p-6 rounded-3xl bg-[#0D0922] border border-pink-500/30 hover:border-pink-400 transition-all flex flex-col justify-between group"
+                >
+                  <div>
+                    <div className="flex items-center justify-between mb-3">
+                      <span className="text-[10px] font-mono uppercase px-2.5 py-0.5 rounded-full bg-pink-500/15 text-pink-300 border border-pink-500/25">
+                        {proj.difficulty}
+                      </span>
+                      <span className="text-[11px] font-mono text-slate-400">
+                        {proj.estimatedHours ? `${proj.estimatedHours}h sprint` : 'Practical'}
+                      </span>
+                    </div>
+
+                    <h4 className="text-base font-bold text-white group-hover:text-pink-300 transition-colors">
+                      {proj.title}
+                    </h4>
+
+                    <p className="text-xs text-slate-400 mt-2 line-clamp-2 leading-relaxed">
+                      {proj.description}
+                    </p>
+                  </div>
+
+                  <div className="mt-5 pt-4 border-t border-white/5 flex items-center justify-between">
+                    <span className="text-[11px] font-mono text-slate-500">Portfolio Proof</span>
+                    <Link
+                      href={`/ideas/submit?title=${encodeURIComponent(proj.title)}`}
+                      className="text-xs font-bold text-pink-400 hover:text-pink-300 inline-flex items-center gap-1 group-hover:translate-x-0.5 transition-transform"
+                    >
+                      <span>Build & Submit</span>
+                      <ArrowRight size={13} />
+                    </Link>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* 3. Free Curated Learning Resources */}
+          <div>
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <span className="text-[11px] font-mono font-bold tracking-widest text-cyan-400 uppercase block mb-1">
+                  STAGE 3: CURATED RESOURCES
+                </span>
+                <h3 className="text-xl sm:text-2xl font-bold text-white">Free Verified Learning Courses</h3>
+              </div>
+              <Link
+                href="/resources"
+                className="text-xs text-cyan-400 hover:text-cyan-300 font-semibold inline-flex items-center gap-1"
+              >
+                <span>All Subject Vaults</span>
+                <ArrowRight size={13} />
+              </Link>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {recommendation.recommendedResources.map((res) => (
+                <a
+                  key={res.id}
+                  href={res.url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="p-5 rounded-2xl bg-[#090C22] border border-cyan-500/20 hover:border-cyan-400 hover:bg-[#0E1338] transition-all flex items-start justify-between gap-3 group"
+                >
+                  <div>
+                    <div className="flex items-center gap-2 mb-1.5">
+                      <span className="text-[10px] font-mono uppercase px-2 py-0.2 rounded-full bg-cyan-500/15 text-cyan-300">
+                        {res.provider}
+                      </span>
+                      <span className="text-[10px] font-mono text-slate-400">
+                        {res.duration}
+                      </span>
+                    </div>
+                    <h4 className="text-sm font-bold text-white group-hover:text-cyan-300 transition-colors">
+                      {res.title}
+                    </h4>
+                  </div>
+                  <ExternalLink size={15} className="text-slate-400 group-hover:text-cyan-400 shrink-0 transition-colors" />
+                </a>
+              ))}
+            </div>
+          </div>
+
+          {/* 4. Active Matched Opportunities */}
+          <div>
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <span className="text-[11px] font-mono font-bold tracking-widest text-amber-400 uppercase block mb-1">
+                  STAGE 4: OPPORTUNITY RADAR
+                </span>
+                <h3 className="text-xl sm:text-2xl font-bold text-white">Matched Internships & Hackathons</h3>
+              </div>
+              <Link
+                href="/opportunities"
+                className="text-xs text-amber-400 hover:text-amber-300 font-semibold inline-flex items-center gap-1"
+              >
+                <span>Browse Directory</span>
+                <ArrowRight size={13} />
+              </Link>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {recommendation.recommendedOpportunities.map((opp) => (
+                <Link
+                  key={opp.id}
+                  href="/opportunities"
+                  className="p-5 rounded-2xl bg-[#140F08] border border-amber-500/30 hover:border-amber-400 hover:bg-[#1C140A] transition-all flex items-center justify-between gap-4 group"
+                >
+                  <div>
+                    <span className="text-[10px] font-mono font-bold uppercase text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded-full border border-amber-500/20">
+                      {opp.type}
+                    </span>
+                    <h4 className="text-base font-bold text-white mt-1.5 group-hover:text-amber-200 transition-colors">
+                      {opp.title}
+                    </h4>
+                    <p className="text-xs text-slate-400 mt-0.5 line-clamp-1">{opp.description}</p>
+                  </div>
+                  <ArrowRight size={16} className="text-amber-400 group-hover:translate-x-1 transition-transform shrink-0" />
+                </Link>
+              ))}
+            </div>
+          </div>
+
+        </section>
+      )}
+
+      {/* ── 5. CAREER DETAIL / ROADMAP MODAL ── */}
+      {modalCareer && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto animate-fade-in">
+          <div className="cyber-hud-card relative w-full max-w-2xl rounded-3xl bg-[#0B0820]/95 backdrop-blur-xl border border-purple-500/40 p-6 sm:p-8 shadow-2xl shadow-purple-950/40 my-8 animate-scale-in">
+
+            {/* Close Button */}
+            <button
+              onClick={() => setModalCareer(null)}
+              className="absolute top-5 right-5 p-2 rounded-full bg-white/5 hover:bg-white/15 text-slate-400 hover:text-white transition-colors cursor-pointer"
+            >
+              <X size={18} />
+            </button>
+
+            {/* Modal Header */}
+            <div className="flex items-start gap-4 mb-6">
+              <div className="p-3.5 rounded-2xl bg-purple-500/15 border border-purple-500/30 text-purple-300 shrink-0 shadow-md shadow-purple-500/20">
+                {getDomainMeta(modalCareer.category).icon}
+              </div>
+              <div>
+                <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-purple-500/15 text-purple-300 border border-purple-500/30 uppercase">
+                  {modalCareer.category}
+                </span>
+                <h3 className="text-2xl font-extrabold text-white mt-1">
+                  {modalCareer.title}
+                </h3>
+                <p className="text-xs text-slate-300 mt-1">
+                  {modalCareer.description}
+                </p>
+              </div>
+            </div>
+
+            {/* Roadmap Phases */}
+            <div className="space-y-4 max-h-[50vh] overflow-y-auto pr-1">
+              <span className="text-xs font-mono font-bold uppercase text-purple-400 tracking-wider block mb-2">
+                Curriculum Blueprint Phases
+              </span>
+              {modalCareer.roadmap.map((phase) => (
+                <div key={phase.phase} className="p-4 rounded-2xl bg-white/[0.03] border border-white/10 hover:border-purple-500/30 transition-colors">
+                  <div className="flex items-center justify-between mb-2">
+                    <h4 className="text-sm font-bold text-white flex items-center gap-2">
+                      <span className="w-5 h-5 rounded-full bg-purple-600 text-[10px] font-mono font-bold flex items-center justify-center text-white shadow-sm shadow-purple-500/40">
+                        {phase.order}
+                      </span>
+                      <span>{phase.phase}</span>
+                    </h4>
+                    <span className="text-[10px] font-mono text-slate-400">
+                      {phase.skills.length} competencies
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-2">
+                    {phase.skills.map((s) => (
+                      <div key={s.id} className="p-2.5 rounded-xl bg-white/[0.02] border border-white/5 hover:border-cyan-500/20 transition-colors">
+                        <span className="text-xs font-semibold text-slate-200 block">{s.name}</span>
+                        <span className="text-[10px] text-slate-400 line-clamp-1">{s.description}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Modal Bottom CTA */}
+            <div className="mt-6 pt-4 border-t border-white/10 flex items-center justify-between gap-4">
+              <button
+                onClick={() => setModalCareer(null)}
+                className="cyber-btn-interactive text-xs font-semibold text-slate-400 hover:text-white px-3 py-1.5 rounded-lg hover:bg-white/5"
+              >
+                Close
+              </button>
+
+              <button
+                onClick={() => {
+                  const c = modalCareer;
+                  setModalCareer(null);
+                  selectRoleAndConfigure(c);
+                }}
+                className="cyber-btn-interactive btn-pill-white text-xs py-2.5 px-5 font-bold inline-flex items-center gap-2 cursor-pointer shadow-lg shadow-purple-500/20"
+              >
+                <span>Calibrate My Profile For This Role</span>
+                <ArrowRight size={13} />
+              </button>
+            </div>
+
+          </div>
+        </div>
+      )}
+
     </div>
   );
-}
-
-function FormSelect({ label, options, error, ...props }: { label: string; options: { value: string; label: string }[]; error?: string } & React.SelectHTMLAttributes<HTMLSelectElement>) {
-  return <label className="block text-sm"><span className="mb-2 block font-medium">{label}</span><select {...props} className="input-search w-full">{options.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}</select>{error && <span className="mt-1 block text-xs text-error">{error}</span>}</label>;
-}
-
-function CheckboxGroup({ label, options, registration, compact = false }: { label: string; options: string[]; registration: ReturnType<ReturnType<typeof useForm<CareerForm>>['register']>; compact?: boolean }) {
-  return <fieldset className="mt-6"><legend className="mb-3 text-sm font-medium">{label}</legend><div className={`grid gap-2 ${compact ? 'grid-cols-2 sm:grid-cols-3' : 'grid-cols-2 sm:grid-cols-3'}`}>{options.map((option) => <label key={option} className="flex cursor-pointer items-start gap-2 rounded-md border border-borderline px-3 py-2 text-xs text-mut transition-colors hover:border-accent/60 hover:text-fg"><input type="checkbox" value={option} {...registration} className="mt-0.5 accent-[var(--accent)]" /><span>{option}</span></label>)}</div></fieldset>;
-}
-
-function CareerSpotlight({ career }: { career: Career }) {
-  return <aside className="surface p-6"><div className="flex items-start justify-between gap-4"><div><p className="eyebrow mb-2">Featured direction</p><h3 className="text-2xl font-semibold">{career.title}</h3></div><span className="rounded-full border border-accent/40 px-3 py-1 text-xs text-accent">{career.category}</span></div><p className="mt-4 text-sm leading-6 text-mut">{career.description}</p><div className="mt-6"><p className="text-xs uppercase tracking-[0.16em] text-mut">Core skills</p><div className="mt-3 flex flex-wrap gap-2">{career.coreSkills.slice(0, 6).map((skill) => <span key={skill} className="rounded-md bg-surface-2 px-2.5 py-1 text-xs">{skill}</span>)}</div></div><div className="mt-7 border-t border-borderline pt-5"><p className="text-xs uppercase tracking-[0.16em] text-mut">Typical projects</p><ul className="mt-3 space-y-2 text-sm">{career.typicalProjects.slice(0, 3).map((project) => <li key={project} className="flex gap-2"><GitBranch size={15} className="mt-0.5 text-accent" />{project}</li>)}</ul></div><a href="#build-path" className="mt-6 inline-flex items-center gap-2 text-sm text-accent">Use this direction <ArrowRight size={15} /></a></aside>;
-}
-
-function RecommendationPanel({ recommendation, progress, onProgress }: { recommendation: CareerRecommendation; progress: Record<string, number>; onProgress: (skill: string, value: number) => void }) {
-  const steps = recommendation.nextSkills;
-  return <div className="grid gap-8 lg:grid-cols-[0.75fr_1.25fr]"><div className="border-l-2 border-accent pl-5"><p className="eyebrow mb-2">Career target</p><h3 className="text-3xl font-semibold">{recommendation.career.title}</h3><p className="mt-3 text-sm leading-6 text-mut">{recommendation.career.description}</p><div className="mt-8 space-y-4 text-sm"><p><span className="text-mut">You are here</span><br /><span className="font-medium">{recommendation.currentStage}</span></p><p><span className="text-mut">Current signal</span><br /><span className="font-medium">{recommendation.basedOn.slice(-2).join(' + ')}</span></p></div></div><div className="relative space-y-3 before:absolute before:bottom-4 before:left-[13px] before:top-4 before:w-px before:bg-borderline">{steps.map((skill, index) => { const value = progress[skill.name] ?? (index === 0 ? 60 : 0); return <div key={skill.id} className="relative flex items-start gap-4"><div className={`z-10 mt-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-full border ${value === 100 ? 'border-success bg-success text-bg' : index === 0 ? 'border-accent bg-accent text-white' : 'border-borderline bg-bg text-mut'}`}>{value === 100 ? <Check size={14} /> : index === 0 ? <Sparkles size={13} /> : <span className="text-xs">{index + 1}</span>}</div><div className="min-w-0 flex-1 border-b border-borderline pb-4"><div className="flex flex-wrap items-center justify-between gap-2"><p className="font-medium">{skill.name}</p><span className="text-xs text-mut">{index === 0 ? 'NEXT' : index < 3 ? 'THEN' : 'BUILD TOWARD'}</span></div><p className="mt-1 text-sm text-mut">{skill.description}</p><div className="mt-3 h-1.5 overflow-hidden rounded-full bg-surface-2"><div className="h-full bg-accent transition-all" style={{ width: `${value}%` }} /></div><div className="mt-2 flex gap-2"><button type="button" onClick={() => onProgress(skill.name, value === 100 ? 0 : 100)} className="text-xs text-accent">{value === 100 ? 'Mark incomplete' : 'Mark complete'}</button><span className="text-xs text-mut">{skill.estimatedHours} hours</span></div></div></div> })}</div></div>;
-}
-
-function NextSkill({ index, skill, resources }: { index: number; skill: CareerRecommendation['nextSkills'][number]; resources: LearningResource[] }) {
-  const resource = resources.find((item) => skill.resources.includes(item.id));
-  return <article className="border-t-2 border-accent pt-4"><p className="text-xs text-mut">{String(index + 1).padStart(2, '0')}</p><h3 className="mt-3 font-medium">{skill.name}</h3><p className="mt-2 text-sm leading-6 text-mut">{skill.description}</p><div className="mt-4 flex flex-wrap gap-3 text-xs text-mut"><span>{skill.level}</span><span>{skill.estimatedHours} hours</span></div>{resource && <a href={resource.url} target="_blank" rel="noreferrer" className="mt-4 inline-flex items-center gap-1 text-xs text-accent">Free resource <ExternalLink size={12} /></a>}</article>;
-}
-
-function ResourceList({ resources }: { resources: LearningResource[] }) {
-  return <div><div className="mb-4 flex items-center justify-between"><h3 className="font-medium">Free learning resources</h3><span className="text-xs text-mut">Curated links · demo URLs</span></div><div className="divide-y divide-borderline border-y border-borderline">{resources.slice(0, 5).map((resource) => <a key={resource.id} href={resource.url} target="_blank" rel="noreferrer" className="flex flex-wrap items-center justify-between gap-3 py-4 hover:bg-surface/40"><span><span className="block font-medium">{resource.title}</span><span className="mt-1 block text-xs text-mut">{resource.provider} · {resource.platform} · {resource.level}</span></span><span className="flex items-center gap-3 text-xs text-mut"><span className="flex items-center gap-1"><Clock3 size={13} />{resource.duration}</span><ExternalLink size={14} className="text-accent" /></span></a>)}</div></div>;
-}
-
-function ProjectPreview({ project }: { project: CareerRecommendation['recommendedProjects'][number] }) {
-  return <article className="surface p-5"><div className="flex items-center justify-between gap-3"><span className="text-xs uppercase tracking-[0.14em] text-accent">{project.difficulty}</span><GitBranch size={16} className="text-mut" /></div><h3 className="mt-4 font-medium">{project.title}</h3><p className="mt-2 text-sm leading-6 text-mut">{project.description}</p><div className="mt-4 flex flex-wrap gap-1.5">{project.suggestedTech.slice(0, 4).map((tech) => <span key={tech} className="rounded bg-surface-2 px-2 py-1 text-[11px] text-mut">{tech}</span>)}</div><p className="mt-4 border-t border-borderline pt-3 text-xs leading-5 text-mut">{project.careerRelevance.join(' · ')}</p></article>;
-}
-
-function ProgressSection({ recommendation, progress, onProgress }: { recommendation: CareerRecommendation; progress: Record<string, number>; onProgress: (skill: string, value: number) => void }) {
-  const items = recommendation.nextSkills.slice(0, 6);
-  return <section className="border-t border-borderline py-12"><SectionHeading eyebrow="Your progress" title="Keep a small promise to yourself." subtitle="Progress is stored on this device for now. It can become part of your student account later." /><div className="mt-6 grid gap-3 md:grid-cols-2">{items.map((skill, index) => { const value = progress[skill.name] ?? (index === 0 ? 60 : 0); const locked = index > 2 && value === 0; return <button key={skill.id} type="button" onClick={() => !locked && onProgress(skill.name, value === 100 ? 0 : 100)} className={`flex items-center gap-4 border-b border-borderline py-4 text-left ${locked ? 'cursor-not-allowed opacity-50' : 'hover:text-accent'}`}><span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-borderline">{locked ? <Lock size={14} /> : value === 100 ? <Check size={15} className="text-success" /> : <span className="text-xs">{value}%</span>}</span><span><span className="block text-sm font-medium">{skill.name}</span><span className="block text-xs text-mut">{locked ? 'Locked' : value === 100 ? 'Complete' : value ? 'In progress' : 'Not started'}</span></span></button> })}</div></section>;
-}
-
-function SectionHeading({ eyebrow, title, subtitle }: { eyebrow: string; title: string; subtitle: string }) {
-  return <div><p className="eyebrow mb-2">{eyebrow}</p><h2 className="text-2xl font-semibold tracking-tight">{title}</h2><p className="mt-1 text-sm text-mut">{subtitle}</p></div>;
-}
-
-function CareerDirectorySkeleton() {
-  return <div className="mt-6 grid gap-3 md:grid-cols-2">{[1, 2, 3, 4].map((item) => <div key={item} className="h-24 animate-pulse border-y border-borderline bg-surface/50" />)}</div>;
-}
-
-function InlineError({ message, onRetry }: { message: string; onRetry: () => void }) {
-  return <div className="mt-6 border border-error/40 p-5"><p className="text-sm text-error">{message}</p><button type="button" onClick={onRetry} className="mt-3 text-sm text-accent">Try again</button></div>;
 }
